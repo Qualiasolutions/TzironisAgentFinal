@@ -193,31 +193,53 @@ export default function ChatInterface() {
     <div className="chat-container fade-in">
       <header className="chat-header">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-cyan-500 bg-clip-text text-transparent">
-            Tzironis Business Suite
-          </h1>
+          <div className="flex items-center">
+            <img 
+              src="/logo.png" 
+              alt="Tzironis Logo" 
+              className="h-8 w-auto mr-3"
+            />
+            <h1 className="text-2xl font-bold text-white">
+              Tzironis Business Suite
+            </h1>
+          </div>
           <div className="flex items-center space-x-4">
-            <div className="text-sm opacity-75">Powered by AI</div>
+            <div className="text-sm text-white opacity-80">Powered by AI</div>
           </div>
         </div>
       </header>
       
       <div className="chat-messages">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-300 my-8">
-            <h2 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-cyan-500 bg-clip-text text-transparent">
-              Who am I speaking to?
+          <div className="text-center my-8">
+            <div className="flex justify-center mb-6">
+              <img 
+                src="/logo.png" 
+                alt="Tzironis Logo" 
+                className="h-16 w-auto mb-4"
+              />
+            </div>
+            <h2 className="text-2xl font-semibold mb-6 text-primary">
+              Welcome to Tzironis Business Suite
             </h2>
             
             <div className="welcome-box max-w-xl mx-auto">
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                {['PABLOS', 'GIORGOS', 'ACHILLIES', 'FAWZI'].map((agent) => (
+              <p className="mb-6 text-gray-600">Please select your virtual assistant to begin:</p>
+              <div className="grid grid-cols-2 gap-6">
+                {[
+                  { id: 'PABLOS', icon: '👨‍💼', role: 'Business Strategist' },
+                  { id: 'GIORGOS', icon: '👨‍💻', role: 'Technical Advisor' },
+                  { id: 'ACHILLIES', icon: '📊', role: 'Analytics Expert' },
+                  { id: 'FAWZI', icon: '🤖', role: 'AI Specialist' }
+                ].map((agent) => (
                   <button
-                    key={agent}
-                    onClick={() => handleAgentSelection(agent)}
-                    className="p-4 bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 rounded-lg border border-indigo-500/30 hover:border-indigo-400 transition-colors text-xl font-medium backdrop-blur-sm hover:shadow-lg"
+                    key={agent.id}
+                    onClick={() => handleAgentSelection(agent.id)}
+                    className="p-4 rounded-lg border hover:border-primary transition-colors text-lg"
                   >
-                    {agent}
+                    <div className="text-3xl mb-2">{agent.icon}</div>
+                    <div className="font-medium text-primary">{agent.id}</div>
+                    <div className="text-sm text-gray-500">{agent.role}</div>
                   </button>
                 ))}
               </div>
@@ -254,7 +276,7 @@ export default function ChatInterface() {
         )}
         
         {isListening && (
-          <div className="self-center py-2 px-4 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white animate-pulse shadow-lg">
+          <div className="self-center py-2 px-4 rounded-full bg-primary text-white animate-pulse shadow-lg">
             Listening...
           </div>
         )}
@@ -268,7 +290,7 @@ export default function ChatInterface() {
         )}
         
         {error && (
-          <div className="bg-red-900/30 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
@@ -285,8 +307,8 @@ export default function ChatInterface() {
             title={isListening ? 'Stop listening' : 'Start voice input'}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 4a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 8.293V4.5A.5.5 0 0 1 8 4z"/>
-              <path d="M8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3zM7 3a1 1 0 0 1 2 0v5a1 1 0 0 1-2 0V3zm7.5 2.5a.5.5 0 0 0-1 0A4.5 4.5 0 0 1 8 10.5a4.5 4.5 0 0 1-5.5-4.5.5.5 0 0 0-1 0A5.5 5.5 0 0 0 7 11.9V14H5.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1H9v-2.1a5.5 5.5 0 0 0 5.5-5.5z"/>
+              <path d="M8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3zm0 1a2 2 0 0 1 2 2v5a2 2 0 1 1-4 0V3a2 2 0 0 1 2-2z"/>
+              <path d="M12.5 5a.5.5 0 0 0-1 0 3.5 3.5 0 1 1-7 0 .5.5 0 0 0-1 0 4.5 4.5 0 0 0 4 4.472V13H5.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1H8.5V9.472A4.5 4.5 0 0 0 12.5 5z"/>
             </svg>
           </button>
           <input
@@ -295,7 +317,7 @@ export default function ChatInterface() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="focus:ring-2 focus:ring-indigo-500/50"
+            className="focus:ring-2 focus:ring-primary/50"
           />
           <button
             type="submit"
