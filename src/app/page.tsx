@@ -1,352 +1,190 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { detect } from '@/utils/languageDetection';
-import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+import { 
+  IconChartBar, 
+  IconCode, 
+  IconBrain, 
+  IconBuildingSkyscraper,
+  IconBriefcase,
+  IconRobot,
+  IconArrowRight,
+  IconSearch,
+  IconFileInvoice,
+  IconDatabase,
+  IconMenu2,
+  IconX,
+  IconDashboard,
+  IconSettings,
+  IconHelp
+} from '@tabler/icons-react';
 
-type Message = {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: number;
-};
-
-export default function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const speechRecognition = useRef<SpeechRecognition | null>(null);
-  
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-  
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Initialize speech recognition
-  useEffect(() => {
-    if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-      speechRecognition.current = new SpeechRecognitionAPI();
-      speechRecognition.current.continuous = true;
-      speechRecognition.current.interimResults = true;
-      
-      speechRecognition.current.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
-          .join('');
-        
-        setInput(transcript);
-      };
-      
-      speechRecognition.current.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-        setIsListening(false);
-      };
-      
-      speechRecognition.current.onend = () => {
-        setIsListening(false);
-      };
-    }
-    
-    return () => {
-      if (speechRecognition.current) {
-        speechRecognition.current.abort();
-      }
-    };
-  }, []);
-
-  const toggleListening = () => {
-    if (!speechRecognition.current) {
-      setError('Speech recognition is not supported in your browser.');
-      return;
-    }
-    
-    if (isListening) {
-      speechRecognition.current.stop();
-      setIsListening(false);
-    } else {
-      speechRecognition.current.start();
-      setIsListening(true);
-      setError(null);
-    }
-  };
-
-  const speakText = (text: string) => {
-    if (!('speechSynthesis' in window)) {
-      setError('Text-to-speech is not supported in your browser.');
-      return;
-    }
-    
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    // Set language based on detected text
-    utterance.lang = getTextLanguage(text);
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => {
-      setError('Error occurred while speaking.');
-      setIsSpeaking(false);
-    };
-    
-    window.speechSynthesis.speak(utterance);
-  };
-
-  // Language detection function - used internally by speakText
-  const getTextLanguage = (text: string): string => {
-    try {
-      const detected = detect(text);
-      return detected?.[0]?.lang || 'en';
-    } catch (error) {
-      console.error('Language detection failed:', error);
-      return 'en';
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
-    // Add user message to chat
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: input,
-      role: 'user',
-      timestamp: Date.now(),
-    };
-    
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-
-    // Show loading indicator
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          history: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
-          agent: selectedAgent || 'default'
-        }),
-      });
-
-      const data = await response.json();
-      
-      // Add AI response to chat
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: data.response,
-        role: 'assistant',
-        timestamp: Date.now(),
-      };
-      
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          content: 'Sorry, there was an error processing your request.',
-          role: 'assistant',
-          timestamp: Date.now(),
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAgentSelection = (agent: string) => {
-    setSelectedAgent(agent);
-    
-    // Add a system message indicating the selected agent
-    const systemMessage: Message = {
-      id: Date.now().toString(),
-      content: `I'm ${agent}. Hello! I'm your intelligent Tzironis Business Suite assistant. How can I help you today?`,
-      role: 'assistant',
-      timestamp: Date.now(),
-    };
-    
-    setMessages([systemMessage]);
-  };
+  // Define the agent options
+  const agents = [
+    { name: 'PABLOS', icon: <IconChartBar size={48} strokeWidth={1.5} />, role: 'Business Strategy Specialist', path: '/chat/pablos' },
+    { name: 'GIORGOS', icon: <IconCode size={48} strokeWidth={1.5} />, role: 'Technical Solutions Architect', path: '/chat/giorgos' },
+    { name: 'ACHILLIES', icon: <IconBuildingSkyscraper size={48} strokeWidth={1.5} />, role: 'Analytics & Business Intelligence', path: '/chat/achillies' },
+    { name: 'FAWZI', icon: <IconBrain size={48} strokeWidth={1.5} />, role: 'AI Implementation Expert', path: '/chat/fawzi' },
+  ];
 
   return (
-    <div className="chat-container fade-in">
-      <header className="chat-header">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <Image 
-              src="/logo.png" 
-              alt="Tzironis Logo" 
-              width={32}
-              height={32}
-              className="h-8 w-auto mr-3"
-            />
-            <h1 className="text-2xl font-bold text-white">
-              Tzironis Business Suite
-            </h1>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br">
+      {/* Main Navigation */}
+      <nav className="navbar">
+        <div className="navbar-container">
+          <div className="navbar-logo">
+            <IconBriefcase className="mr-3" size={28} strokeWidth={1.5} />
+            <span>Tzironis Business Suite</span>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-white opacity-80">Powered by AI</div>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex navbar-links">
+            <Link href="/" className="navbar-link">Dashboard</Link>
+            <Link href="/automation" className="navbar-link">Automation</Link>
+            <Link href="/analytics" className="navbar-link">Analytics</Link>
+            <Link href="/settings" className="navbar-link">Settings</Link>
+          </div>
+          
+          {/* Mobile menu button */}
+          <button 
+            className="md:hidden p-2 rounded-md text-white focus:outline-none"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
+          </button>
+        </div>
+        
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden pt-4 pb-3 border-t border-white/10 mt-2">
+            <div className="flex flex-col space-y-1 px-2">
+              <Link href="/" className="navbar-link py-3">Dashboard</Link>
+              <Link href="/automation" className="navbar-link py-3">Automation</Link>
+              <Link href="/analytics" className="navbar-link py-3">Analytics</Link>
+              <Link href="/settings" className="navbar-link py-3">Settings</Link>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      <main className="flex-grow flex flex-col">
+        {/* Hero section */}
+        <section className="pt-20 pb-16 px-4 text-center relative fade-in">
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-6">
+              <IconBriefcase size={84} strokeWidth={1} className="text-primary inline-block" />
+            </div>
+            <h1 className="text-4xl sm:text-6xl font-bold text-foreground mb-6 leading-tight">
+              Welcome to Tzironis Business Suite
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-10">
+              Your intelligent business companion. Select an AI specialist to help with your specific business needs or explore our automation tools.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/automation" className="bg-primary hover:bg-primary-light text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 shadow-md hover:shadow-hover flex items-center">
+                <IconRobot className="mr-3" size={20} strokeWidth={1.5} />
+                Explore Automation
+              </Link>
+              <Link href="/analytics" className="bg-white hover:bg-gray-50 text-primary px-8 py-3 rounded-lg text-lg font-medium border border-primary transition-all duration-300 shadow-md hover:shadow-hover flex items-center">
+                <IconDashboard className="mr-3" size={20} strokeWidth={1.5} />
+                View Analytics
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* AI Assistants Section */}
+        <section className="py-16 px-4 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">AI Business Assistants</h2>
+              <p className="text-gray-600 max-w-3xl mx-auto">Choose a specialized AI assistant to help with your specific business needs</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {agents.map((agent, index) => (
+                <Link
+                  key={agent.name}
+                  href={agent.path}
+                  className={`group agent-card slide-up`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="agent-icon">
+                    {agent.icon}
+                  </div>
+                  <h2 className="agent-name">{agent.name}</h2>
+                  <p className="agent-role">{agent.role}</p>
+                  <div className="mt-auto pt-4 w-full">
+                    <span className="agent-button">
+                      Chat Now <IconArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+        
+        {/* Business Automation Platform */}
+        <section className="py-16 px-4 bg-accent">
+          <div className="max-w-7xl mx-auto">
+            <div className="w-full max-w-5xl mx-auto bg-white rounded-xl shadow-card overflow-hidden border border-card-border">
+              <div className="bg-primary text-white p-8">
+                <h2 className="text-3xl font-bold mb-2">Business Automation Platform</h2>
+                <p className="text-blue-100">Streamline operations and boost productivity with our suite of automation tools</p>
+              </div>
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="platform-card">
+                    <IconSearch className="text-primary mb-4" size={38} strokeWidth={1.5} />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Lead Generation</h3>
+                    <p className="text-gray-600 text-sm">Discover potential clients with our AI-powered lead finder</p>
+                  </div>
+                  <div className="platform-card">
+                    <IconFileInvoice className="text-primary mb-4" size={38} strokeWidth={1.5} />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Invoice Automation</h3>
+                    <p className="text-gray-600 text-sm">Create and manage invoices with our union.gr integration</p>
+                  </div>
+                  <div className="platform-card">
+                    <IconDatabase className="text-primary mb-4" size={38} strokeWidth={1.5} />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Knowledge Base</h3>
+                    <p className="text-gray-600 text-sm">Access company information, products, and client data</p>
+                  </div>
+                </div>
+                <Link href="/automation" className="bg-primary hover:bg-primary-light text-white px-6 py-3 rounded-lg text-lg font-medium flex items-center justify-center w-full transition-all duration-300 shadow-md hover:shadow-hover">
+                  <IconRobot className="mr-2" size={22} strokeWidth={1.5} />
+                  Access Business Automation Tools
+                  <IconArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="bg-white border-t border-gray-200 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center mb-4 md:mb-0">
+              <IconBriefcase className="mr-2 text-primary" size={24} strokeWidth={1.5} />
+              <span className="text-primary font-semibold">Tzironis Business Suite</span>
+            </div>
+            <div className="flex space-x-6 mb-4 md:mb-0">
+              <Link href="/about" className="text-gray-500 hover:text-primary transition-colors">About</Link>
+              <Link href="/contact" className="text-gray-500 hover:text-primary transition-colors">Contact</Link>
+              <Link href="/privacy" className="text-gray-500 hover:text-primary transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-gray-500 hover:text-primary transition-colors">Terms</Link>
+            </div>
+            <p className="text-gray-500 text-sm">
+              &copy; {new Date().getFullYear()} Tzironis Business Suite. All rights reserved.
+            </p>
           </div>
         </div>
-      </header>
-      
-      <div className="chat-messages">
-        {messages.length === 0 ? (
-          <div className="text-center my-8">
-            <div className="flex justify-center mb-6">
-              <Image 
-                src="/logo.png" 
-                alt="Tzironis Logo" 
-                width={64}
-                height={64}
-                className="h-16 w-auto mb-4"
-              />
-            </div>
-            <h2 className="text-2xl font-semibold mb-6 text-primary">
-              Welcome to Tzironis Business Suite
-            </h2>
-            
-            <div className="welcome-box max-w-xl mx-auto">
-              <p className="mb-6 text-gray-600">Please select your virtual assistant to begin:</p>
-              <div className="grid grid-cols-2 gap-6">
-                {[
-                  { id: 'PABLOS', icon: '👨‍💼', role: 'Business Strategist' },
-                  { id: 'GIORGOS', icon: '👨‍💻', role: 'Technical Advisor' },
-                  { id: 'ACHILLIES', icon: '📊', role: 'Analytics Expert' },
-                  { id: 'FAWZI', icon: '🤖', role: 'AI Specialist' }
-                ].map((agent) => (
-                  <button
-                    key={agent.id}
-                    onClick={() => handleAgentSelection(agent.id)}
-                    className="p-4 rounded-lg border hover:border-primary transition-colors text-lg"
-                  >
-                    <div className="text-3xl mb-2">{agent.icon}</div>
-                    <div className="font-medium text-primary">{agent.id}</div>
-                    <div className="text-sm text-gray-500">{agent.role}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={message.role === 'user' ? 'message-user' : 'message-assistant'}
-            >
-              <div className="message-content">{message.content}</div>
-              <div className="flex justify-between items-center mt-2">
-                <div className="text-xs opacity-70">
-                  {new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                </div>
-                {message.role === 'assistant' && (
-                  <button 
-                    onClick={() => speakText(message.content)}
-                    disabled={isSpeaking}
-                    className="text-xs flex items-center opacity-70 hover:opacity-100 transition-opacity"
-                    title="Listen to this message"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                      <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
-                      <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
-                      <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          ))
-        )}
-        
-        {isListening && (
-          <div className="self-center py-2 px-4 rounded-full bg-primary text-white animate-pulse shadow-lg">
-            Listening...
-          </div>
-        )}
-        
-        {isLoading && (
-          <div className="loading-indicator">
-            <div className="loading-dot"></div>
-            <div className="loading-dot"></div>
-            <div className="loading-dot"></div>
-          </div>
-        )}
-        
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} />
-      </div>
-      
-      <div className="chat-input-container">
-        <form onSubmit={handleSubmit} className="chat-input">
-          <button
-            type="button"
-            onClick={toggleListening}
-            className={`voice-button ${isListening ? 'active' : ''}`}
-            title={isListening ? 'Stop listening' : 'Start voice input'}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3zm0 1a2 2 0 0 1 2 2v5a2 2 0 1 1-4 0V3a2 2 0 0 1 2-2z"/>
-              <path d="M12.5 5a.5.5 0 0 0-1 0 3.5 3.5 0 1 1-7 0 .5.5 0 0 0-1 0 4.5 4.5 0 0 0 4 4.472V13H5.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1H8.5V9.472A4.5 4.5 0 0 0 12.5 5z"/>
-            </svg>
-          </button>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            disabled={isLoading}
-            className="focus:ring-2 focus:ring-primary/50"
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-          >
-            {isLoading ? (
-              <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing
-              </span>
-            ) : (
-              <span className="flex items-center">
-                Send
-                <svg className="ml-1 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                </svg>
-              </span>
-            )}
-          </button>
-        </form>
-      </div>
+      </footer>
     </div>
   );
 }

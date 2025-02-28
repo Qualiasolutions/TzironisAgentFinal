@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -20,12 +20,15 @@ export const metadata: Metadata = {
     apple: "/favicon.ico",
   },
   manifest: "/manifest.json",
-  themeColor: "#145199",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Tzironis Business Suite",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#145199",
 };
 
 export default function RootLayout({
@@ -34,15 +37,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full bg-white">
-      <head>
-        <meta name="theme-color" content="#145199" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
-      </head>
+    <html lang="en" style={{ height: '100%' }}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable}`}
+        style={{ 
+          fontFamily: 'var(--font-geist-sans), system-ui, sans-serif', 
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+          minHeight: '100vh',
+          backgroundColor: '#f0f7ff'
+        }}
       >
         {children}
       </body>
