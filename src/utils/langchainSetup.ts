@@ -69,10 +69,10 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
 }
 
 // Process the conversation and return the AI response
-export async function processConversation(userMessage: string, conversationHistory: BaseMessage[], agent?: string) {
+export async function processConversation(userMessage: string, conversationHistory: BaseMessage[], _agent?: string) {
   try {
     // Get the conversation model - no longer checking for demo mode
-    const model = getChatModel();
+    const chatModel = getChatModel();
     
     // Create the conversation chain
     const conversationChain = createConversationChain(conversationHistory);
