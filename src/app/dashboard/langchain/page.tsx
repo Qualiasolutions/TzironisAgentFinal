@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LangChainDashboard() {
   const [projectName, setProjectName] = useState<string>('');
@@ -39,10 +40,12 @@ export default function LangChainDashboard() {
       <header className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <img 
+            <Image 
               src="/logo.png" 
               alt="Tzironis Logo" 
-              className="h-8 w-auto mr-3" 
+              width={32}
+              height={32}
+              className="h-8 w-auto mr-3"
             />
             <h1 className="text-3xl font-bold text-primary">AI Dashboard</h1>
           </div>

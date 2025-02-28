@@ -8,6 +8,13 @@ interface ChatMessage {
   content: string;
 }
 
+// Message validation interface
+interface MessageValidation {
+  role?: string;
+  content?: string;
+  [key: string]: unknown;
+}
+
 // Custom error responses for different scenarios
 const ERROR_RESPONSES = {
   timeout: "I apologize for the delay. Our systems are currently experiencing high demand. Let me help with your query as soon as possible. For urgent matters, please try a more specific question.",
@@ -31,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Convert history to LangChain message format with validation
     const langchainHistory = Array.isArray(history) 
-      ? history.filter((msg: any) => 
+      ? history.filter((msg: MessageValidation) => 
           msg && typeof msg === 'object' && 
           (msg.role === 'user' || msg.role === 'assistant') && 
           typeof msg.content === 'string'
@@ -56,11 +63,11 @@ export async function POST(request: NextRequest) {
       
       // Return the AI response
       return NextResponse.json({ response });
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error('Request failed:', error);
       
       // Return appropriate fallback based on error type
-      const errorMessage = error?.message || '';
+      const errorMessage = error instanceof Error ? error.message : String(error);
       if (errorMessage.includes('timed out')) {
         return NextResponse.json({ response: ERROR_RESPONSES.timeout });
       } else {

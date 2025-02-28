@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { detect } from '@/utils/languageDetection';
+import Image from 'next/image';
 
 type Message = {
   id: string;
@@ -194,9 +195,11 @@ export default function ChatInterface() {
       <header className="chat-header">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <img 
+            <Image 
               src="/logo.png" 
               alt="Tzironis Logo" 
+              width={32}
+              height={32}
               className="h-8 w-auto mr-3"
             />
             <h1 className="text-2xl font-bold text-white">
@@ -213,9 +216,11 @@ export default function ChatInterface() {
         {messages.length === 0 ? (
           <div className="text-center my-8">
             <div className="flex justify-center mb-6">
-              <img 
+              <Image 
                 src="/logo.png" 
                 alt="Tzironis Logo" 
+                width={64}
+                height={64}
                 className="h-16 w-auto mb-4"
               />
             </div>
