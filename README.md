@@ -1,111 +1,88 @@
-# TZIRONIS AGENT
+# Tzironis Business Suite - AI Chatbot
 
-A fully intelligent bilingual chatbot with voice capabilities, designed to work in both Greek and English.
+A modern AI chatbot assistant for business operations, powered by Mistral AI.
 
 ## Features
 
-- Voice input/output with support for both Greek and English
-- Automatic language detection
-- Responsive UI that works well on mobile devices
-- Persistent conversation history
-- Proper error handling and fallback mechanisms
+- Modern, responsive chat interface
+- Multi-language support with automatic language detection
+- Powered by Mistral AI for intelligent responses
+- Real-time communication
+- Error handling and smooth user experience
 
-## Technical Stack
+## Getting Started
 
-- **Frontend**: Next.js with React 18, TypeScript, and Tailwind CSS
-- **Backend**: Next.js API routes
-- **Language Models**: LangChain with browser automation via Selenium
-- **Voice**: Web Speech API for recognition and synthesis
-- **Internationalization**: i18next for bilingual support (Greek/English)
+### Prerequisites
 
-## Prerequisites
+- Node.js 18+ and npm
+- Mistral AI API key
 
-- Node.js 18 or higher
-- Chrome browser (for Selenium automation)
-- Chrome WebDriver (for Selenium)
+### Installation
 
-## Setup Instructions
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/Qualiasolutions/TzironisAgentFinal.git
-   cd TzironisAgentFinal
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/tzironis-agent-final.git
+   cd tzironis-agent-final
    ```
 
-2. Install dependencies:
-   ```
+2. Install dependencies
+   ```bash
    npm install
    ```
 
-3. Create a `.env.local` file in the root directory with the following content:
-   ```
-   NEXT_PUBLIC_DEFAULT_LANGUAGE=el
-   NEXT_PUBLIC_FALLBACK_LANGUAGE=en
-   LANGCHAIN_TRACING_V2=false
-   SELENIUM_DRIVER_PATH=./selenium-drivers/chromedriver
-   LANGCHAIN_API_KEY=your-langchain-api-key-here
-   ```
+3. Set up environment variables
+   - Rename `.env.local.example` to `.env.local`
+   - Add your Mistral AI API key to the `.env.local` file:
+     ```
+     MISTRAL_API_KEY=your_mistral_api_key_here
+     ```
 
-4. Download Chrome WebDriver:
-   - Visit the [Chrome WebDriver download page](https://chromedriver.chromium.org/downloads)
-   - Download the version that matches your Chrome browser
-   - Create a `selenium-drivers` folder in the root of the project
-   - Extract the WebDriver executable into the `selenium-drivers` folder
-   - Make sure the path in `.env.local` matches your WebDriver location
+### Development
 
-5. Start the development server:
-   ```
-   npm run dev
-   ```
+Run the development server:
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+```bash
+npm run dev
+```
 
-## Deployment
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-### Vercel Deployment
+### Build for Production
 
-1. Create a Vercel account if you don't have one
-2. Install the Vercel CLI:
-   ```
-   npm install -g vercel
-   ```
+```bash
+npm run build
+npm run start
+```
 
-3. Deploy to Vercel:
-   ```
-   vercel
-   ```
+## Technology Stack
 
-4. Set environment variables in the Vercel dashboard.
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- Mistral AI API
+- Axios for API communication
+- Language detection
 
-### GitHub Actions Setup
+## Customization
 
-This project includes GitHub Actions workflows for continuous integration. To use it:
+You can customize the AI behavior by modifying the parameters in the `src/app/api/chat/route.ts` file:
 
-1. Push the repository to GitHub
-2. Go to Settings > Secrets and add the following repository secrets:
-   - `LANGCHAIN_API_KEY`: Your LangChain API key
-
-## Browser Support
-
-The application works best in modern browsers that support the Web Speech API:
-- Chrome (recommended)
-- Edge
-- Firefox
-- Safari
-
-## Mobile Support
-
-The application is designed to be fully responsive and works well on mobile devices. Voice input and output capabilities are supported on mobile browsers that implement the Web Speech API.
+```typescript
+// Adjust model, temperature, and other parameters for different AI behavior
+{
+  model: 'mistral-medium',  // Change to a different Mistral model if needed
+  messages,
+  temperature: 0.7,  // Higher = more creative, Lower = more deterministic
+  max_tokens: 2000,  // Maximum response length
+}
+```
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+[MIT License](LICENSE)
 
 ## Acknowledgements
 
-- [Next.js](https://nextjs.org/) - The React Framework
-- [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework
-- [LangChain](https://js.langchain.com/) - Framework for LLM applications
-- [Selenium](https://www.selenium.dev/) - Browser automation
-- [i18next](https://www.i18next.com/) - Internationalization framework
-- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) - Speech recognition and synthesis
+- Mistral AI for the powerful language model
+- Next.js team for the application framework
