@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (!message || typeof message !== 'string') {
       console.warn('Invalid message format received');
       return NextResponse.json(
-        { response: ERROR_RESPONSES.validation },
+        { message: ERROR_RESPONSES.validation },
         { status: 400 }
       );
     }
@@ -61,23 +61,27 @@ export async function POST(request: NextRequest) {
       // Race between the API processing and the timeout
       const response = await Promise.race([responsePromise, timeoutPromise]);
       
-      // Return the AI response
-      return NextResponse.json({ response });
-    } catch (error: Error | unknown) {
+      // Return the AI response with the correct key 'message' instead of 'response'
+      return NextResponse.json({ message: response });
+    } catch (error) {
       console.error('Request failed:', error);
       
       // Return appropriate fallback based on error type
       const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log('Detailed error:', JSON.stringify(error));
+      
       if (errorMessage.includes('timed out')) {
-        return NextResponse.json({ response: ERROR_RESPONSES.timeout });
+        return NextResponse.json({ message: ERROR_RESPONSES.timeout });
       } else {
-        return NextResponse.json({ response: ERROR_RESPONSES.apiFailure });
+        return NextResponse.json({ 
+          message: ERROR_RESPONSES.apiFailure
+        });
       }
     }
   } catch (error) {
     console.error('Error in chat API:', error);
     return NextResponse.json(
-      { response: ERROR_RESPONSES.general },
+      { message: ERROR_RESPONSES.general },
       { status: 200 } // Still return 200 to show error in chat instead of failing
     );
   }

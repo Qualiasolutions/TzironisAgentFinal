@@ -15,9 +15,7 @@ import {
   IconDatabase,
   IconMenu2,
   IconX,
-  IconDashboard,
-  IconSettings,
-  IconHelp
+  IconDashboard
 } from '@tabler/icons-react';
 
 export default function Home() {
