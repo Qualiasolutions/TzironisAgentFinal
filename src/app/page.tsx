@@ -128,15 +128,15 @@ export default function Home() {
         </section>
         
         {/* Business Automation Platform */}
-        <section className="py-16 px-4 bg-accent">
+        <section className="py-12 sm:py-16 px-4 md:px-6 lg:px-8 bg-accent">
           <div className="max-w-7xl mx-auto">
-            <div className="w-full max-w-5xl mx-auto bg-white rounded-xl shadow-card overflow-hidden border border-card-border">
-              <div className="bg-primary text-white p-8">
-                <h2 className="text-3xl font-bold mb-2">Business Automation Platform</h2>
-                <p className="text-blue-100">Streamline operations and boost productivity with our suite of automation tools</p>
+            <div className="business-platform-container">
+              <div className="business-platform-header">
+                <h2 className="text-2xl md:text-3xl font-bold mb-2">Business Automation Platform</h2>
+                <p className="text-blue-100 opacity-90">Streamline operations and boost productivity with our suite of automation tools</p>
               </div>
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="business-platform-content">
+                <div className="business-platform-grid">
                   <div className="platform-card">
                     <IconSearch className="text-primary mb-4" size={38} strokeWidth={1.5} />
                     <h3 className="text-xl font-semibold text-foreground mb-2">Lead Generation</h3>
@@ -153,10 +153,10 @@ export default function Home() {
                     <p className="text-gray-600 text-sm">Access company information, products, and client data</p>
                   </div>
                 </div>
-                <Link href="/automation" className="bg-primary hover:bg-primary-light text-white px-6 py-3 rounded-lg text-lg font-medium flex items-center justify-center w-full transition-all duration-300 shadow-md hover:shadow-hover">
+                <Link href="/automation" className="business-platform-cta">
                   <IconRobot className="mr-2" size={22} strokeWidth={1.5} />
-                  Access Business Automation Tools
-                  <IconArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                  <span>Access Business Automation Tools</span>
+                  <IconArrowRight size={18} className="ml-2 transition-transform" />
                 </Link>
               </div>
             </div>

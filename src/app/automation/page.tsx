@@ -296,461 +296,453 @@ export default function AutomationPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 fade-in">
-      <header className="mb-6 pb-4 border-b border-gray-200">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-primary">Business Automation</h1>
-          <Link href="/" className="btn btn-outline flex items-center">
-            <IconArrowLeft size={18} strokeWidth={1.5} className="mr-2" />
-            Back to Home
-          </Link>
-        </div>
-      </header>
-
-      {error && (
-        <div className="alert alert-error mb-6 slide-up">
-          <IconX size={20} strokeWidth={1.5} className="flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {success && (
-        <div className="alert alert-success mb-6 slide-up">
-          <IconCheck size={20} strokeWidth={1.5} className="flex-shrink-0" />
-          <span>{success}</span>
-        </div>
-      )}
-
-      <div className="mb-6">
-        <div className="flex space-x-4 border-b border-gray-200">
-          <button
-            className={`tab-button ${activeTab === 'leads' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('leads')}
-          >
-            <IconBrandLinkedin size={20} strokeWidth={1.5} className="mr-2" />
-            Lead Generation
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'invoices' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('invoices')}
-          >
-            <IconFileInvoice size={20} strokeWidth={1.5} className="mr-2" />
-            Invoice Creation
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'knowledge' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('knowledge')}
-          >
-            <IconBrain size={20} strokeWidth={1.5} className="mr-2" />
-            Knowledge Base
-          </button>
+    <div className="min-h-screen bg-background">
+      {/* Page Header */}
+      <div className="bg-primary text-white py-8 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center mb-6">
+            <Link href="/" className="flex items-center text-white hover:text-blue-100 transition-colors mr-4">
+              <IconArrowLeft size={20} className="mr-2" />
+              <span>Back to Home</span>
+            </Link>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Business Automation Tools</h1>
+          <p className="text-blue-100 max-w-3xl">Access powerful automation tools to streamline your business operations and boost productivity.</p>
         </div>
       </div>
-
-      {activeTab === 'leads' && (
-        <div className="slide-up">
-          <div className="automation-card mb-6 p-6">
-            <h2 className="text-xl font-semibold mb-4 text-primary">LinkedIn Lead Scraper</h2>
-            <div className="mb-4">
-              <label htmlFor="linkedin-url" className="form-label">LinkedIn Profile URL</label>
-              <div className="flex">
-                <input
-                  id="linkedin-url"
-                  type="url"
-                  className="form-input flex-grow mr-4"
-                  placeholder="https://linkedin.com/in/username"
-                  value={linkedinProfile}
-                  onChange={(e) => setLinkedinProfile(e.target.value)}
-                  disabled={isLoading}
-                />
-                <button
-                  className="btn btn-primary flex items-center" 
-                  onClick={handleLeadScraping}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <IconLoader2 size={20} strokeWidth={1.5} className="animate-spin mr-2" />
-                      Processing
-                    </>
-                  ) : (
-                    'Extract Contact'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="automation-card p-6">
-            <h2 className="text-xl font-semibold mb-4 text-primary">Leads ({leads.length})</h2>
-            
-            {leads.length === 0 ? (
-              <p className="text-gray-500">No leads found. Start by scraping a LinkedIn profile.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Company</th>
-                      <th>Position</th>
-                      <th>Email</th>
-                      <th>LinkedIn</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leads.map((lead, index) => (
-                      <tr key={index}>
-                        <td>{lead.name}</td>
-                        <td>{lead.company}</td>
-                        <td>{lead.position}</td>
-                        <td>{lead.email}</td>
-                        <td>
-                          <a 
-                            href={lead.linkedin} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:text-primary-dark flex items-center"
-                          >
-                            View <IconExternalLink size={16} strokeWidth={1.5} className="ml-1" />
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+      
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto py-8 px-4 md:px-8">
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200 pb-4">
+          <button 
+            onClick={() => setActiveTab('leads')} 
+            className={`tab-button ${activeTab === 'leads' ? 'active' : ''}`}
+          >
+            <IconSearch size={20} className="mr-2" />
+            <span>Lead Generation</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('invoices')} 
+            className={`tab-button ${activeTab === 'invoices' ? 'active' : ''}`}
+          >
+            <IconFileInvoice size={20} className="mr-2" />
+            <span>Invoice Automation</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('knowledge')} 
+            className={`tab-button ${activeTab === 'knowledge' ? 'active' : ''}`}
+          >
+            <IconBrain size={20} className="mr-2" />
+            <span>Knowledge Base</span>
+          </button>
         </div>
-      )}
-
-      {activeTab === 'invoices' && (
-        <div className="slide-up">
-          <div className="automation-card mb-6 p-6">
-            <h2 className="text-xl font-semibold mb-4 text-primary">Create Invoice</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label htmlFor="client-name" className="form-label">Client Name</label>
-                <input
-                  id="client-name"
-                  type="text"
-                  className="form-input"
-                  placeholder="Client name"
-                  value={invoiceDetails.clientName}
-                  onChange={(e) => setInvoiceDetails({...invoiceDetails, clientName: e.target.value})}
-                  disabled={isLoading}
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="invoice-number" className="form-label">Invoice Number</label>
-                <input
-                  id="invoice-number"
-                  type="text"
-                  className="form-input"
-                  placeholder="e.g. INV-2023-001"
-                  value={invoiceDetails.invoiceNumber}
-                  onChange={(e) => setInvoiceDetails({...invoiceDetails, invoiceNumber: e.target.value})}
-                  disabled={isLoading}
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="issue-date" className="form-label">Issue Date</label>
-                <input
-                  id="issue-date"
-                  type="date"
-                  className="form-input"
-                  value={invoiceDetails.issueDate}
-                  onChange={(e) => setInvoiceDetails({...invoiceDetails, issueDate: e.target.value})}
-                  disabled={isLoading}
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="due-date" className="form-label">Due Date</label>
-                <input
-                  id="due-date"
-                  type="date"
-                  className="form-input"
-                  value={invoiceDetails.dueDate}
-                  onChange={(e) => setInvoiceDetails({...invoiceDetails, dueDate: e.target.value})}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-            
-            <h3 className="text-lg font-medium mb-3 text-primary">Invoice Items</h3>
-            
-            {invoiceDetails.items.map((item, index) => (
-              <div key={index} className="flex flex-wrap items-end mb-4 bg-accent p-4 rounded-lg">
-                <div className="w-full md:w-1/2 mb-3 md:mb-0 md:pr-2">
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Service description"
-                    value={item.description}
-                    onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
-                    disabled={isLoading}
-                  />
-                </div>
-                
-                <div className="w-1/4 md:w-1/6 mb-3 md:mb-0 md:px-2">
-                  <label className="form-label">Qty</label>
-                  <input
-                    type="number"
-                    className="form-input"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) => updateInvoiceItem(index, 'quantity', e.target.value)}
-                    disabled={isLoading}
-                  />
-                </div>
-                
-                <div className="w-2/4 md:w-1/4 mb-3 md:mb-0 md:px-2">
-                  <label className="form-label">Unit Price</label>
-                  <input
-                    type="number"
-                    className="form-input"
-                    min="0"
-                    step="0.01"
-                    value={item.unitPrice}
-                    onChange={(e) => updateInvoiceItem(index, 'unitPrice', e.target.value)}
-                    disabled={isLoading}
-                  />
-                </div>
-                
-                <div className="w-1/4 md:w-1/12 flex justify-center">
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() => removeInvoiceItem(index)}
-                    disabled={isLoading || invoiceDetails.items.length <= 1}
-                  >
-                    <IconTrash size={18} strokeWidth={1.5} />
-                  </button>
-                </div>
-              </div>
-            ))}
-            
-            <div className="flex justify-between items-center mb-6">
-              <button
-                type="button"
-                className="btn btn-outline flex items-center"
-                onClick={addInvoiceItem}
-                disabled={isLoading}
-              >
-                <IconPlus size={18} strokeWidth={1.5} className="mr-2" />
-                Add Item
-              </button>
-              
-              <div className="text-right">
-                <div className="text-lg font-semibold text-primary">
-                  Total: ${calculateTotal().toFixed(2)}
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="notes" className="form-label">Notes</label>
-              <textarea
-                id="notes"
-                className="form-input h-24"
-                placeholder="Additional notes or payment instructions"
-                value={invoiceDetails.notes}
-                onChange={(e) => setInvoiceDetails({...invoiceDetails, notes: e.target.value})}
-                disabled={isLoading}
-              ></textarea>
-            </div>
-            
-            <div className="mt-6">
-              <button
-                className="btn btn-primary w-full flex items-center justify-center"
-                onClick={handleInvoiceCreation}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <IconLoader2 size={20} strokeWidth={1.5} className="animate-spin mr-2" />
-                    Processing
-                  </>
-                ) : (
-                  'Generate Invoice'
-                )}
-              </button>
-            </div>
-          </div>
-          
-          <div className="automation-card p-6">
-            <h2 className="text-xl font-semibold mb-4 text-primary">Recent Invoices ({invoices.length})</h2>
-            
-            {invoices.length === 0 ? (
-              <p className="text-gray-500">No invoices found. Create your first invoice using the form above.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Invoice #</th>
-                      <th>Client</th>
-                      <th>Issue Date</th>
-                      <th>Due Date</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoices.map((invoice, index) => (
-                      <tr key={index}>
-                        <td>{invoice.invoiceNumber}</td>
-                        <td>{invoice.clientName}</td>
-                        <td>{invoice.issueDate}</td>
-                        <td>{invoice.dueDate}</td>
-                        <td>${invoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0).toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'knowledge' && (
-        <div className="slide-up">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="automation-card p-6">
-              <h2 className="text-xl font-semibold mb-4 text-primary">Add to Knowledge Base</h2>
+        
+        {activeTab === 'leads' && (
+          <div className="slide-up">
+            <div className="automation-card mb-6 p-6">
+              <h2 className="text-xl font-semibold mb-4 text-primary">LinkedIn Lead Scraper</h2>
               <div className="mb-4">
-                <label htmlFor="document-url" className="form-label">Document URL</label>
-                <input
-                  id="document-url"
-                  type="url"
-                  className="form-input mb-4"
-                  placeholder="https://example.com/document.pdf"
-                  value={knowledgeUrl}
-                  onChange={(e) => setKnowledgeUrl(e.target.value)}
-                  disabled={isLoading}
-                />
-                <button
-                  className="btn btn-primary w-full flex items-center justify-center"
-                  onClick={handleKnowledgeBaseAdd}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <IconLoader2 size={20} strokeWidth={1.5} className="animate-spin mr-2" />
-                      Processing
-                    </>
-                  ) : (
-                    'Extract & Add to Knowledge Base'
-                  )}
-                </button>
-              </div>
-            </div>
-            
-            <div className="automation-card p-6">
-              <h2 className="text-xl font-semibold mb-4 text-primary">Search Knowledge Base</h2>
-              <div className="mb-4">
-                <label htmlFor="search-term" className="form-label">Search Term</label>
+                <label htmlFor="linkedin-url" className="form-label">LinkedIn Profile URL</label>
                 <div className="flex">
                   <input
-                    id="search-term"
-                    type="text"
+                    id="linkedin-url"
+                    type="url"
                     className="form-input flex-grow mr-4"
-                    placeholder="Enter keywords to search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="https://linkedin.com/in/username"
+                    value={linkedinProfile}
+                    onChange={(e) => setLinkedinProfile(e.target.value)}
                     disabled={isLoading}
                   />
                   <button
-                    className="btn btn-primary flex items-center"
-                    onClick={handleKnowledgeSearch}
+                    className="btn btn-primary flex items-center" 
+                    onClick={handleLeadScraping}
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
                         <IconLoader2 size={20} strokeWidth={1.5} className="animate-spin mr-2" />
-                        Searching
+                        Processing
                       </>
                     ) : (
+                      'Extract Contact'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="automation-card p-6">
+              <h2 className="text-xl font-semibold mb-4 text-primary">Leads ({leads.length})</h2>
+              
+              {leads.length === 0 ? (
+                <p className="text-gray-500">No leads found. Start by scraping a LinkedIn profile.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Company</th>
+                        <th>Position</th>
+                        <th>Email</th>
+                        <th>LinkedIn</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leads.map((lead, index) => (
+                        <tr key={index}>
+                          <td>{lead.name}</td>
+                          <td>{lead.company}</td>
+                          <td>{lead.position}</td>
+                          <td>{lead.email}</td>
+                          <td>
+                            <a 
+                              href={lead.linkedin} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:text-primary-dark flex items-center"
+                            >
+                              View <IconExternalLink size={16} strokeWidth={1.5} className="ml-1" />
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'invoices' && (
+          <div className="slide-up">
+            <div className="automation-card mb-6 p-6">
+              <h2 className="text-xl font-semibold mb-4 text-primary">Create Invoice</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label htmlFor="client-name" className="form-label">Client Name</label>
+                  <input
+                    id="client-name"
+                    type="text"
+                    className="form-input"
+                    placeholder="Client name"
+                    value={invoiceDetails.clientName}
+                    onChange={(e) => setInvoiceDetails({...invoiceDetails, clientName: e.target.value})}
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="invoice-number" className="form-label">Invoice Number</label>
+                  <input
+                    id="invoice-number"
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. INV-2023-001"
+                    value={invoiceDetails.invoiceNumber}
+                    onChange={(e) => setInvoiceDetails({...invoiceDetails, invoiceNumber: e.target.value})}
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="issue-date" className="form-label">Issue Date</label>
+                  <input
+                    id="issue-date"
+                    type="date"
+                    className="form-input"
+                    value={invoiceDetails.issueDate}
+                    onChange={(e) => setInvoiceDetails({...invoiceDetails, issueDate: e.target.value})}
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="due-date" className="form-label">Due Date</label>
+                  <input
+                    id="due-date"
+                    type="date"
+                    className="form-input"
+                    value={invoiceDetails.dueDate}
+                    onChange={(e) => setInvoiceDetails({...invoiceDetails, dueDate: e.target.value})}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+              
+              <h3 className="text-lg font-medium mb-3 text-primary">Invoice Items</h3>
+              
+              {invoiceDetails.items.map((item, index) => (
+                <div key={index} className="flex flex-wrap items-end mb-4 bg-accent p-4 rounded-lg">
+                  <div className="w-full md:w-1/2 mb-3 md:mb-0 md:pr-2">
+                    <label className="form-label">Description</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Service description"
+                      value={item.description}
+                      onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  
+                  <div className="w-1/4 md:w-1/6 mb-3 md:mb-0 md:px-2">
+                    <label className="form-label">Qty</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => updateInvoiceItem(index, 'quantity', e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  
+                  <div className="w-2/4 md:w-1/4 mb-3 md:mb-0 md:px-2">
+                    <label className="form-label">Unit Price</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      min="0"
+                      step="0.01"
+                      value={item.unitPrice}
+                      onChange={(e) => updateInvoiceItem(index, 'unitPrice', e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  
+                  <div className="w-1/4 md:w-1/12 flex justify-center">
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={() => removeInvoiceItem(index)}
+                      disabled={isLoading || invoiceDetails.items.length <= 1}
+                    >
+                      <IconTrash size={18} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              
+              <div className="flex justify-between items-center mb-6">
+                <button
+                  type="button"
+                  className="btn btn-outline flex items-center"
+                  onClick={addInvoiceItem}
+                  disabled={isLoading}
+                >
+                  <IconPlus size={18} strokeWidth={1.5} className="mr-2" />
+                  Add Item
+                </button>
+                
+                <div className="text-right">
+                  <div className="text-lg font-semibold text-primary">
+                    Total: ${calculateTotal().toFixed(2)}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label htmlFor="notes" className="form-label">Notes</label>
+                <textarea
+                  id="notes"
+                  className="form-input h-24"
+                  placeholder="Additional notes or payment instructions"
+                  value={invoiceDetails.notes}
+                  onChange={(e) => setInvoiceDetails({...invoiceDetails, notes: e.target.value})}
+                  disabled={isLoading}
+                ></textarea>
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  className="btn btn-primary w-full flex items-center justify-center"
+                  onClick={handleInvoiceCreation}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <IconLoader2 size={20} strokeWidth={1.5} className="animate-spin mr-2" />
+                      Processing
+                    </>
+                  ) : (
+                    'Generate Invoice'
+                  )}
+                </button>
+              </div>
+            </div>
+            
+            <div className="automation-card p-6">
+              <h2 className="text-xl font-semibold mb-4 text-primary">Recent Invoices ({invoices.length})</h2>
+              
+              {invoices.length === 0 ? (
+                <p className="text-gray-500">No invoices found. Create your first invoice using the form above.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Invoice #</th>
+                        <th>Client</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.map((invoice, index) => (
+                        <tr key={index}>
+                          <td>{invoice.invoiceNumber}</td>
+                          <td>{invoice.clientName}</td>
+                          <td>{invoice.issueDate}</td>
+                          <td>{invoice.dueDate}</td>
+                          <td>${invoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0).toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'knowledge' && (
+          <div className="slide-up">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="automation-card p-6">
+                <h2 className="text-xl font-semibold mb-4 text-primary">Add to Knowledge Base</h2>
+                <div className="mb-4">
+                  <label htmlFor="document-url" className="form-label">Document URL</label>
+                  <input
+                    id="document-url"
+                    type="url"
+                    className="form-input mb-4"
+                    placeholder="https://example.com/document.pdf"
+                    value={knowledgeUrl}
+                    onChange={(e) => setKnowledgeUrl(e.target.value)}
+                    disabled={isLoading}
+                  />
+                  <button
+                    className="btn btn-primary w-full flex items-center justify-center"
+                    onClick={handleKnowledgeBaseAdd}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
                       <>
-                        <IconSearch size={20} strokeWidth={1.5} className="mr-2" />
-                        Search
+                        <IconLoader2 size={20} strokeWidth={1.5} className="animate-spin mr-2" />
+                        Processing
                       </>
+                    ) : (
+                      'Extract & Add to Knowledge Base'
                     )}
                   </button>
                 </div>
               </div>
               
-              {searchResults.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium mb-3 text-primary">Search Results</h3>
-                  <div className="space-y-4">
-                    {searchResults.map((result, index) => (
-                      <div key={index} className="kb-result-card">
-                        <div className="font-medium mb-1">{result.title}</div>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {result.content.substring(0, 120)}...
-                        </p>
-                        {result.url && (
-                          <a
-                            href={result.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:text-primary-dark text-sm flex items-center"
-                          >
-                            View Source <IconExternalLink size={16} strokeWidth={1.5} className="ml-1" />
-                          </a>
-                        )}
-                      </div>
-                    ))}
+              <div className="automation-card p-6">
+                <h2 className="text-xl font-semibold mb-4 text-primary">Search Knowledge Base</h2>
+                <div className="mb-4">
+                  <label htmlFor="search-term" className="form-label">Search Term</label>
+                  <div className="flex">
+                    <input
+                      id="search-term"
+                      type="text"
+                      className="form-input flex-grow mr-4"
+                      placeholder="Enter keywords to search"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      disabled={isLoading}
+                    />
+                    <button
+                      className="btn btn-primary flex items-center"
+                      onClick={handleKnowledgeSearch}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <IconLoader2 size={20} strokeWidth={1.5} className="animate-spin mr-2" />
+                          Searching
+                        </>
+                      ) : (
+                        <>
+                          <IconSearch size={20} strokeWidth={1.5} className="mr-2" />
+                          Search
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="automation-card p-6">
-            <h2 className="text-xl font-semibold mb-4 text-primary">Knowledge Base Entries ({knowledgeBase.length})</h2>
-            
-            {knowledgeBase.length === 0 ? (
-              <p className="text-gray-500">No documents in knowledge base. Add your first document using the form above.</p>
-            ) : (
-              <div className="space-y-4">
-                {knowledgeBase.map((entry, index) => (
-                  <div key={index} className="kb-result-card">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium mb-1">{entry.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {entry.content.substring(0, 160)}...
-                        </p>
-                        <div className="flex items-center">
-                          {entry.url && (
+                
+                {searchResults.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-medium mb-3 text-primary">Search Results</h3>
+                    <div className="space-y-4">
+                      {searchResults.map((result, index) => (
+                        <div key={index} className="kb-result-card">
+                          <div className="font-medium mb-1">{result.title}</div>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {result.content.substring(0, 120)}...
+                          </p>
+                          {result.url && (
                             <a
-                              href={entry.url}
+                              href={result.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-primary hover:text-primary-dark text-sm flex items-center mr-4"
+                              className="text-primary hover:text-primary-dark text-sm flex items-center"
                             >
                               View Source <IconExternalLink size={16} strokeWidth={1.5} className="ml-1" />
                             </a>
                           )}
-                          <span className="text-xs text-gray-500">Added: {entry.dateAdded}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="automation-card p-6">
+              <h2 className="text-xl font-semibold mb-4 text-primary">Knowledge Base Entries ({knowledgeBase.length})</h2>
+              
+              {knowledgeBase.length === 0 ? (
+                <p className="text-gray-500">No documents in knowledge base. Add your first document using the form above.</p>
+              ) : (
+                <div className="space-y-4">
+                  {knowledgeBase.map((entry, index) => (
+                    <div key={index} className="kb-result-card">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium mb-1">{entry.title}</h3>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {entry.content.substring(0, 160)}...
+                          </p>
+                          <div className="flex items-center">
+                            {entry.url && (
+                              <a
+                                href={entry.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:text-primary-dark text-sm flex items-center mr-4"
+                              >
+                                View Source <IconExternalLink size={16} strokeWidth={1.5} className="ml-1" />
+                              </a>
+                            )}
+                            <span className="text-xs text-gray-500">Added: {entry.dateAdded}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 } 

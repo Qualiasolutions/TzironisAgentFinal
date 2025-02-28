@@ -151,20 +151,25 @@ html, body {
 /* Platform cards */
 .platform-card {
   background-color: var(--accent);
-  padding: 1.5rem;
-  border-radius: 0.5rem;
+  padding: 2rem 1.5rem;
+  border-radius: 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: all 0.3s;
-  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(20, 81, 153, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  min-height: 220px;
+  justify-content: center;
 }
 
 .platform-card:hover {
-  transform: translateY(-0.5rem);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-color: rgba(20, 81, 153, 0.2);
+  transform: translateY(-0.25rem);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: rgba(20, 81, 153, 0.3);
+  background-color: white;
 }
 
 /* Chat component styling */
@@ -783,22 +788,39 @@ html, body {
 }
 
 .tab-button {
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border-bottom: 2px solid transparent;
+  position: relative;
+  padding: 0.75rem 1.25rem;
   display: flex;
   align-items: center;
+  color: var(--foreground);
+  background-color: transparent;
+  border: none;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 0.5rem 0.5rem 0 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
 }
 
 .tab-button.active {
-  border-bottom-color: var(--primary);
   color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+  background-color: rgba(20, 81, 153, 0.05);
 }
 
 .tab-button:hover:not(.active) {
-  color: var(--primary-light);
+  background-color: rgba(20, 81, 153, 0.03);
+  color: var(--primary-dark);
+}
+
+@media (max-width: 640px) {
+  .tab-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .tab-content {
@@ -1179,3 +1201,146 @@ a {
 .slide-up:nth-child(2) { animation-delay: 0.1s; }
 .slide-up:nth-child(3) { animation-delay: 0.2s; }
 .slide-up:nth-child(4) { animation-delay: 0.3s; }
+
+/* Add these responsive container styles */
+.business-platform-container {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  transition: all 0.3s ease;
+}
+
+.business-platform-header {
+  background-color: var(--primary);
+  color: white;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.business-platform-content {
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .business-platform-header {
+    padding: 2rem;
+  }
+  
+  .business-platform-content {
+    padding: 2rem;
+  }
+}
+
+.business-platform-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .business-platform-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .business-platform-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.business-platform-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-color: var(--primary);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.business-platform-cta:hover {
+  background-color: var(--primary-light);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .business-platform-cta {
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+  }
+}
+
+/* Responsive padding utilities */
+.px-responsive {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-responsive {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.p-responsive {
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .px-responsive {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .py-responsive {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  
+  .p-responsive {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .px-responsive {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .py-responsive {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+  
+  .p-responsive {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .px-responsive {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+  
+  .py-responsive {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  
+  .p-responsive {
+    padding: 2.5rem;
+  }
+}
