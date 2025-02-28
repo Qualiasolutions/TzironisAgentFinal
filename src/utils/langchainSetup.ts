@@ -94,7 +94,14 @@ export async function processConversation(userMessage: string, conversationHisto
     
     try {
       // Create the conversation chain
-      const { chain, callbacks } = createConversationChain(conversationHistory);
+      const conversationChain = createConversationChain(conversationHistory);
+      
+      // If chain couldn't be created, return demo response
+      if (!conversationChain) {
+        return demoResponse;
+      }
+      
+      const { chain, callbacks } = conversationChain;
       
       // Add timeout protection
       const timeoutPromise = new Promise<string>((_, reject) => {
