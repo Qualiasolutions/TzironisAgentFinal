@@ -10,12 +10,7 @@ import { ConsoleCallbackHandler } from '@langchain/core/tracers/console';
 function getChatModel() {
   const apiKey = process.env.MISTRAL_API_KEY || '';
   
-  if (!apiKey || apiKey === 'demo') {
-    console.log('No Mistral API key found, using demo mode');
-    return null;
-  }
-  
-  // Using Mistral's small model for free tier users
+  // Always create and return the model with the API key
   return new ChatMistralAI({
     apiKey: apiKey,
     modelName: 'mistral-small-latest', // Free tier model
@@ -27,11 +22,6 @@ function getChatModel() {
 // Create a conversation chain with the given history
 export function createConversationChain(conversationHistory: BaseMessage[]) {
   const model = getChatModel();
-  
-  if (!model) {
-    // Return null to indicate demo mode
-    return null;
-  }
   
   // Create tracers for monitoring
   const tracers = [];
@@ -81,69 +71,35 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
 // Process the conversation and return the AI response
 export async function processConversation(userMessage: string, conversationHistory: BaseMessage[], agent?: string) {
   try {
-    // Use demo mode responses immediately if no API key or for quick fallback
-    const demoResponse = getDemoResponse(userMessage, agent);
-    
-    // Get the conversation model
+    // Get the conversation model - no longer checking for demo mode
     const model = getChatModel();
     
-    // If no model available or in demo mode, return demo response
-    if (!model) {
-      return demoResponse;
+    // Create the conversation chain
+    const conversationChain = createConversationChain(conversationHistory);
+    
+    if (!conversationChain) {
+      throw new Error('Failed to create conversation chain');
     }
     
-    try {
-      // Create the conversation chain
-      const conversationChain = createConversationChain(conversationHistory);
-      
-      // If chain couldn't be created, return demo response
-      if (!conversationChain) {
-        return demoResponse;
-      }
-      
-      const { chain, callbacks } = conversationChain;
-      
-      // Add timeout protection
-      const timeoutPromise = new Promise<string>((_, reject) => {
-        setTimeout(() => reject(new Error('API call timed out')), 15000);
-      });
-      
-      // Race between the API call and the timeout
-      const response = await Promise.race([
-        chain.invoke({
-          chatHistory: conversationHistory,
-          userInput: userMessage
-        }, { callbacks }),
-        timeoutPromise
-      ]) as string;
-      
-      return response || demoResponse;
-    } catch (error) {
-      console.error('Error with Mistral API call:', error);
-      // Fall back to demo response on error
-      return demoResponse;
-    }
+    const { chain, callbacks } = conversationChain;
+    
+    // Add timeout protection
+    const timeoutPromise = new Promise<string>((_, reject) => {
+      setTimeout(() => reject(new Error('API call timed out')), 15000);
+    });
+    
+    // Race between the API call and the timeout
+    const response = await Promise.race([
+      chain.invoke({
+        chatHistory: conversationHistory,
+        userInput: userMessage
+      }, { callbacks }),
+      timeoutPromise
+    ]) as string;
+    
+    return response || 'I apologize, but I couldn\'t generate a response. Please try again.';
   } catch (error) {
     console.error('Error processing conversation:', error);
-    return 'Sorry, there was an error processing your request. Please try again.';
-  }
-}
-
-// Helper function to get demo responses
-function getDemoResponse(userMessage: string, agent?: string): string {
-  // Simple logic for demo responses
-  const message = userMessage.toLowerCase();
-  const agentPrefix = agent ? `I'm ${agent}. ` : '';
-  
-  if (message.includes('hello') || message.includes('hi')) {
-    return `${agentPrefix}Hello! I'm your intelligent Tzironis Business Suite assistant. How can I help you today?`;
-  } else if (message.includes('thank')) {
-    return `${agentPrefix}You're welcome! I'm always here to assist with the Tzironis Business Suite.`;
-  } else if (message.includes('help')) {
-    return `${agentPrefix}I can help you with a wide range of tasks in the Tzironis Business Suite, including business analytics, workflow automation, data processing, and more. What specific area would you like assistance with?`;
-  } else if (message.includes('intelligent') || message.includes('smart')) {
-    return `${agentPrefix}To make me more intelligent, you'll need to add your Mistral AI API key to the .env.local file. Mistral offers a free tier with surprisingly smart AI models!`;
-  } else {
-    return `${agentPrefix}I'm currently in demo mode. To unlock my full capabilities, please add your Mistral AI API key to the .env.local file. Mistral offers a free tier that provides high-quality AI responses without any cost.`;
+    return 'I apologize for the inconvenience. There was an error processing your request. Please try again.';
   }
 } 

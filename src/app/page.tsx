@@ -181,7 +181,7 @@ export default function ChatInterface() {
     // Add a system message indicating the selected agent
     const systemMessage: Message = {
       id: Date.now().toString(),
-      content: `You are now speaking with ${agent}. How can I assist you today?`,
+      content: `I'm ${agent}. Hello! I'm your intelligent Tzironis Business Suite assistant. How can I help you today?`,
       role: 'assistant',
       timestamp: Date.now(),
     };
@@ -193,7 +193,7 @@ export default function ChatInterface() {
     <div className="chat-container fade-in">
       <header className="chat-header">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-cyan-500 bg-clip-text text-transparent">
             Tzironis Business Suite
           </h1>
           <div className="flex items-center space-x-4">
@@ -205,7 +205,7 @@ export default function ChatInterface() {
       <div className="chat-messages">
         {messages.length === 0 ? (
           <div className="text-center text-gray-300 my-8">
-            <h2 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-cyan-500 bg-clip-text text-transparent">
               Who am I speaking to?
             </h2>
             
@@ -215,7 +215,7 @@ export default function ChatInterface() {
                   <button
                     key={agent}
                     onClick={() => handleAgentSelection(agent)}
-                    className="p-4 bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 rounded-lg border border-indigo-500/30 hover:border-indigo-400 transition-colors text-xl font-medium"
+                    className="p-4 bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 rounded-lg border border-indigo-500/30 hover:border-indigo-400 transition-colors text-xl font-medium backdrop-blur-sm hover:shadow-lg"
                   >
                     {agent}
                   </button>
