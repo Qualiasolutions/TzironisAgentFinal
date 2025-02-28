@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { detect } from 'langdetect';
+import { detect } from '@/utils/languageDetection';
 
 type Message = {
   id: string;
