@@ -30,6 +30,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-speech-recognition": "^3.9.6",
+    "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
     "tailwindcss": "^4",
