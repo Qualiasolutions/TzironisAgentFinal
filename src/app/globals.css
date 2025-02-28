@@ -184,6 +184,7 @@ html, body {
   border: 1px solid var(--card-border);
   max-width: 1200px;
   margin: 1rem auto;
+  position: relative;
 }
 
 .chat-header {
@@ -191,6 +192,9 @@ html, body {
   color: white;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--primary-dark);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .chat-title-container {
@@ -230,6 +234,7 @@ html, body {
   flex-direction: column;
   gap: 1rem;
   background-color: #f8fafd;
+  padding-bottom: 80px; /* Add space for the fixed input container */
 }
 
 .message {
@@ -322,6 +327,20 @@ html, body {
   padding: 1rem;
   border-top: 1px solid #e5e7eb;
   background-color: white;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .input-container {
+    width: 100%;
+    padding: 0.75rem;
+  }
 }
 
 .message-input {
@@ -361,6 +380,25 @@ html, body {
 .send-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .messages-container {
+    padding: 1rem;
+    padding-bottom: 90px;
+  }
+  
+  .message-content {
+    padding: 0.75rem;
+  }
+}
+
+/* Fix for iOS viewport height issues */
+@supports (-webkit-touch-callout: none) {
+  .chat-container {
+    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
+  }
 }
 
 /* Loading screen for chat page */
@@ -464,9 +502,14 @@ html, body {
   }
   
   .chat-container {
-    margin: 0;
     height: 100vh;
+    margin: 0;
     border-radius: 0;
+    border: none;
+  }
+  
+  .container {
+    padding: 0;
   }
   
   .message {
@@ -1343,4 +1386,37 @@ a {
   .p-responsive {
     padding: 2.5rem;
   }
+}
+
+.voice-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  margin-left: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.voice-button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.voice-button.voice-active {
+  background-color: #ef4444;
+  color: white;
+}
+
+.voice-button.voice-active:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.voice-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
