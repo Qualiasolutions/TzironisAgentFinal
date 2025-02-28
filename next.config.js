@@ -11,15 +11,23 @@ const nextConfig = {
   },
   // Configure external dependencies properly
   experimental: {
-    esmExternals: 'loose',
     serverActions: {
       bodySizeLimit: '2mb'
     }
   },
   // React 19 compatibility
   webpack: (config) => {
+    // Force TypeScript to resolve the React types
+    config.resolve = {
+      ...config.resolve,
+      extensionAlias: {
+        '.js': ['.js', '.ts', '.tsx']
+      }
+    };
     return config;
-  }
+  },
+  // Specify which packages should be transpiled
+  transpilePackages: ['react', 'react-dom']
 }
 
 module.exports = nextConfig 
