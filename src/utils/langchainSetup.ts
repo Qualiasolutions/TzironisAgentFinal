@@ -69,12 +69,11 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
 }
 
 // Process the conversation and return the AI response
-export async function processConversation(userMessage: string, conversationHistory: BaseMessage[], _agent?: string) {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+export async function processConversation(userMessage: string, conversationHistory: BaseMessage[], agent?: string) {
+/* eslint-enable @typescript-eslint/no-unused-vars */
   try {
-    // Get the conversation model - no longer checking for demo mode
-    const chatModel = getChatModel();
-    
-    // Create the conversation chain
+    // Create the conversation chain - we don't need to store the model separately
     const conversationChain = createConversationChain(conversationHistory);
     
     if (!conversationChain) {
