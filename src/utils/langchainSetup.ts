@@ -2,7 +2,7 @@ import { ChatMistralAI } from '@langchain/mistralai';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
-import { BaseMessage, HumanMessage } from '@langchain/core/messages';
+import { BaseMessage } from '@langchain/core/messages';
 import { LangChainTracer } from '@langchain/core/tracers/tracer_langchain';
 import { ConsoleCallbackHandler } from '@langchain/core/tracers/console';
 
@@ -42,6 +42,11 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
   }
   
   tracers.push(new ConsoleCallbackHandler());
+  
+  // Log for debugging purposes
+  if (conversationHistory.length > 0) {
+    console.log(`Processing conversation with ${conversationHistory.length} messages`);
+  }
   
   // Create the prompt template
   const promptTemplate = PromptTemplate.fromTemplate(`
