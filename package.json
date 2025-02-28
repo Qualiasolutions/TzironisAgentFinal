@@ -13,8 +13,10 @@
     "@langchain/community": "0.3.33",
     "@langchain/mistralai": "0.2.0",
     "@langchain/openai": "0.4.4",
+    "@tabler/icons-react": "^3.30.0",
     "@types/selenium-webdriver": "^4.1.28",
     "axios": "^1.8.1",
+    "cheerio": "^1.0.0-rc.12",
     "i18next": "^24.2.2",
     "langchain": "^0.3.19",
     "langsmith": "^0.3.11",
@@ -29,15 +31,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4.0.9",
+    "@types/cheerio": "^0.22.35",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-speech-recognition": "^3.9.6",
-    "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }
