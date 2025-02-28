@@ -2,7 +2,7 @@ import { ChatMistralAI } from '@langchain/mistralai';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
-import { BaseMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
+import { BaseMessage, HumanMessage } from '@langchain/core/messages';
 import { LangChainTracer } from '@langchain/core/tracers/tracer_langchain';
 import { ConsoleCallbackHandler } from '@langchain/core/tracers/console';
 
@@ -77,8 +77,8 @@ export function createConversationChain(history: BaseMessage[]) {
 // Process the conversation and return the AI response
 export async function processConversation(userMessage: string, conversationHistory: BaseMessage[]) {
   try {
-    // Create a new history array with the user message
-    const history = [...conversationHistory, new HumanMessage(userMessage)];
+    // Create the user message for potential later use
+    const userMsg = new HumanMessage(userMessage);
     
     // Use demo mode responses immediately if no API key or for quick fallback
     const demoResponse = getDemoResponse(userMessage);

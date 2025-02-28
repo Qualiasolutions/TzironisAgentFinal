@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import { detect } from '@/utils/languageDetection';
 
 type Message = {
@@ -100,7 +99,8 @@ export default function ChatInterface() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const detectLanguage = (text: string): string => {
+  // Language detection function - used internally by speakText
+  const getTextLanguage = (text: string): string => {
     try {
       const detected = detect(text);
       return detected?.[0]?.lang || 'en';

@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { processConversation } from '@/utils/langchainSetup';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 
+// Define proper types for chat history
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { message, history } = await request.json();
@@ -14,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Convert history to LangChain message format
-    const langchainHistory = history?.map((msg: any) => {
+    const langchainHistory = history?.map((msg: ChatMessage) => {
       if (msg.role === 'user') {
         return new HumanMessage(msg.content);
       } else {
