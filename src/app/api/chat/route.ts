@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MistralService, ChatMessage } from '@/lib/mistral';
 
-// Default to environment variable or fallback to a placeholder
-const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY || '';
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-
 export async function POST(req: NextRequest) {
   try {
     const { message, history, language = 'en' } = await req.json();
@@ -13,13 +9,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Message is required' },
         { status: 400 }
-      );
-    }
-
-    if (!MISTRAL_API_KEY) {
-      return NextResponse.json(
-        { error: 'Mistral API key is not configured' },
-        { status: 500 }
       );
     }
 
