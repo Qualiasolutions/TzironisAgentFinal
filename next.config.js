@@ -9,11 +9,10 @@ const nextConfig = {
     // Fix for production build on Vercel
     ignoreBuildErrors: true,
   },
-  // Add experimental flag to ensure dependencies are handled correctly
-  experimental: {
-    // Force serverless functions to include required node_modules
-    serverComponentsExternalPackages: ['@tabler/icons-react']
-  }
+  // External packages configuration
+  serverExternalPackages: ['@tabler/icons-react'],
+  // Remove @tabler/icons-react from transpilePackages if it exists
+  transpilePackages: []
 }
 
 module.exports = nextConfig 

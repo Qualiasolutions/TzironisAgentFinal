@@ -1,18 +1,13 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   IconSearch, 
-  IconRobot, 
-  IconDatabase, 
   IconFileInvoice, 
-  IconBriefcase,
   IconArrowLeft,
   IconPlus,
   IconLoader2,
-  IconAlertCircle,
-  IconCircleCheck,
   IconBrandLinkedin,
   IconCheck,
   IconX,
