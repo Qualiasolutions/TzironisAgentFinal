@@ -8,11 +8,7 @@ const nextConfig = {
   typescript: {
     // Fix for production build on Vercel
     ignoreBuildErrors: true,
-  },
-  // External packages configuration
-  serverExternalPackages: ['@tabler/icons-react'],
-  // Remove @tabler/icons-react from transpilePackages if it exists
-  transpilePackages: []
+  }
 }
 
 module.exports = nextConfig 
