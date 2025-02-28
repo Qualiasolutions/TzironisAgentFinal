@@ -21,7 +21,6 @@ function getChatModel() {
     modelName: 'mistral-small-latest', // Free tier model
     temperature: 0.7,
     maxTokens: 1024,
-    timeout: 30000,  // 30 second timeout
   });
 }
 
