@@ -3,7 +3,7 @@ import { MistralService, ChatMessage } from '@/lib/mistral';
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, history, language = 'en' } = await req.json();
+    const { message, history } = await req.json();
 
     if (!message) {
       return NextResponse.json(
