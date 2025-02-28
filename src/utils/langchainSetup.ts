@@ -79,10 +79,10 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
 }
 
 // Process the conversation and return the AI response
-export async function processConversation(userMessage: string, conversationHistory: BaseMessage[]) {
+export async function processConversation(userMessage: string, conversationHistory: BaseMessage[], agent?: string) {
   try {
     // Use demo mode responses immediately if no API key or for quick fallback
-    const demoResponse = getDemoResponse(userMessage);
+    const demoResponse = getDemoResponse(userMessage, agent);
     
     // Get the conversation model
     const model = getChatModel();
@@ -130,19 +130,20 @@ export async function processConversation(userMessage: string, conversationHisto
 }
 
 // Helper function to get demo responses
-function getDemoResponse(userMessage: string): string {
+function getDemoResponse(userMessage: string, agent?: string): string {
   // Simple logic for demo responses
   const message = userMessage.toLowerCase();
+  const agentPrefix = agent ? `I'm ${agent}. ` : '';
   
   if (message.includes('hello') || message.includes('hi')) {
-    return 'Hello! I\'m your intelligent Tzironis Business Suite assistant. How can I help you today?';
+    return `${agentPrefix}Hello! I'm your intelligent Tzironis Business Suite assistant. How can I help you today?`;
   } else if (message.includes('thank')) {
-    return "You're welcome! I'm always here to assist with the Tzironis Business Suite.";
+    return `${agentPrefix}You're welcome! I'm always here to assist with the Tzironis Business Suite.`;
   } else if (message.includes('help')) {
-    return 'I can help you with a wide range of tasks in the Tzironis Business Suite, including business analytics, workflow automation, data processing, and more. What specific area would you like assistance with?';
+    return `${agentPrefix}I can help you with a wide range of tasks in the Tzironis Business Suite, including business analytics, workflow automation, data processing, and more. What specific area would you like assistance with?`;
   } else if (message.includes('intelligent') || message.includes('smart')) {
-    return "To make me more intelligent, you'll need to add your Mistral AI API key to the .env.local file. Mistral offers a free tier with surprisingly smart AI models!";
+    return `${agentPrefix}To make me more intelligent, you'll need to add your Mistral AI API key to the .env.local file. Mistral offers a free tier with surprisingly smart AI models!`;
   } else {
-    return "I'm currently in demo mode. To unlock my full capabilities, please add your Mistral AI API key to the .env.local file. Mistral offers a free tier that provides high-quality AI responses without any cost.";
+    return `${agentPrefix}I'm currently in demo mode. To unlock my full capabilities, please add your Mistral AI API key to the .env.local file. Mistral offers a free tier that provides high-quality AI responses without any cost.`;
   }
 } 

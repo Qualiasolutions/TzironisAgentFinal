@@ -10,7 +10,7 @@ interface ChatMessage {
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, history } = await request.json();
+    const { message, history, agent } = await request.json();
 
     if (!message) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Process the conversation with a timeout
-    const responsePromise = processConversation(message, langchainHistory);
+    const responsePromise = processConversation(message, langchainHistory, agent);
     
     try {
       // Race between the API processing and the timeout

@@ -17,6 +17,7 @@ export default function ChatInterface() {
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const speechRecognition = useRef<SpeechRecognition | null>(null);
@@ -143,6 +144,7 @@ export default function ChatInterface() {
             role: msg.role,
             content: msg.content
           })),
+          agent: selectedAgent || 'default'
         }),
       });
 
@@ -173,6 +175,20 @@ export default function ChatInterface() {
     }
   };
 
+  const handleAgentSelection = (agent: string) => {
+    setSelectedAgent(agent);
+    
+    // Add a system message indicating the selected agent
+    const systemMessage: Message = {
+      id: Date.now().toString(),
+      content: `You are now speaking with ${agent}. How can I assist you today?`,
+      role: 'assistant',
+      timestamp: Date.now(),
+    };
+    
+    setMessages([systemMessage]);
+  };
+
   return (
     <div className="chat-container fade-in">
       <header className="chat-header">
@@ -190,43 +206,20 @@ export default function ChatInterface() {
         {messages.length === 0 ? (
           <div className="text-center text-gray-300 my-8">
             <h2 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-              Welcome to the Tzironis Business Assistant
+              Who am I speaking to?
             </h2>
-            <p className="text-lg mb-6">How can I help you today?</p>
             
             <div className="welcome-box max-w-xl mx-auto">
-              <h3 className="text-xl font-medium mb-4">Ready to get started?</h3>
-              <p className="mb-4">
-                Ask me anything about business analytics, workflow automation, data processing, or any other business task!
-              </p>
-              
-              <div className="border-t border-gray-700 pt-4 mt-4">
-                <h4 className="font-medium mb-2">Make me smarter:</h4>
-                <p className="text-sm mb-4">For more intelligent responses, add your Mistral AI API key in the .env.local file.</p>
-                
-                <h4 className="font-medium mb-2">Free AI Options:</h4>
-                <ul className="list-disc pl-5 space-y-2 text-sm">
-                  <li>
-                    <a href="https://console.mistral.ai/api-keys/" className="text-indigo-400 hover:underline" target="_blank" rel="noopener noreferrer">
-                      Mistral AI
-                    </a> - Free tier with impressive language models
-                  </li>
-                  <li>
-                    <a href="https://huggingface.co/docs/inference-endpoints/index" className="text-indigo-400 hover:underline" target="_blank" rel="noopener noreferrer">
-                      Hugging Face Inference API
-                    </a> - Free tier available
-                  </li>
-                  <li>
-                    <a href="https://cohere.com/pricing" className="text-indigo-400 hover:underline" target="_blank" rel="noopener noreferrer">
-                      Cohere API
-                    </a> - Free trial credits
-                  </li>
-                  <li>
-                    Use a local open-source model with <a href="https://ollama.ai/" className="text-indigo-400 hover:underline" target="_blank" rel="noopener noreferrer">
-                      Ollama
-                    </a>
-                  </li>
-                </ul>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                {['PABLOS', 'GIORGOS', 'ACHILLIES', 'FAWZI'].map((agent) => (
+                  <button
+                    key={agent}
+                    onClick={() => handleAgentSelection(agent)}
+                    className="p-4 bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 rounded-lg border border-indigo-500/30 hover:border-indigo-400 transition-colors text-xl font-medium"
+                  >
+                    {agent}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
