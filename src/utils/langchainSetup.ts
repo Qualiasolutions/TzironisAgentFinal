@@ -26,7 +26,7 @@ function getChatModel() {
 }
 
 // Create a conversation chain with the given history
-export function createConversationChain(history: BaseMessage[]) {
+export function createConversationChain(conversationHistory: BaseMessage[]) {
   const model = getChatModel();
   
   if (!model) {
@@ -77,9 +77,6 @@ export function createConversationChain(history: BaseMessage[]) {
 // Process the conversation and return the AI response
 export async function processConversation(userMessage: string, conversationHistory: BaseMessage[]) {
   try {
-    // Create the user message for potential later use
-    const userMsg = new HumanMessage(userMessage);
-    
     // Use demo mode responses immediately if no API key or for quick fallback
     const demoResponse = getDemoResponse(userMessage);
     

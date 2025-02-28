@@ -89,6 +89,8 @@ export default function ChatInterface() {
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
+    // Set language based on detected text
+    utterance.lang = getTextLanguage(text);
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => {
