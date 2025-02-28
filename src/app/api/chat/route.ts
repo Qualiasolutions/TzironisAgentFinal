@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Process the conversation with a timeout
-    const responsePromise = processConversation(message, langchainHistory, agent);
+    const responsePromise = processConversation(message, langchainHistory);
     
     try {
       // Race between the API processing and the timeout
