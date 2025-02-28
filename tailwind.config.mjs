@@ -6,7 +6,22 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: 'var(--primary)',
+        'primary-dark': 'var(--primary-dark)',
+        secondary: 'var(--secondary)',
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+      },
+      fontFamily: {
+        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+      },
+      boxShadow: {
+        soft: '0 2px 15px rgba(0, 0, 0, 0.05)',
+        medium: '0 4px 20px rgba(0, 0, 0, 0.1)',
+      },
+    },
   },
   plugins: [],
 }; 

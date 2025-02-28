@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MistralService, ChatMessage } from '@/lib/mistral';
+import { processConversation } from '@/utils/langchainSetup';
+import { HumanMessage, AIMessage } from '@langchain/core/messages';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { message, history } = await req.json();
+    const { message, history } = await request.json();
 
     if (!message) {
       return NextResponse.json(
@@ -12,45 +13,41 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Initialize Mistral service with configuration
-    const mistralService = new MistralService({
-      model: 'mistral-medium',
-      temperature: 0.7,
-      maxTokens: 2000,
+    // Convert history to LangChain message format
+    const langchainHistory = history?.map((msg: any) => {
+      if (msg.role === 'user') {
+        return new HumanMessage(msg.content);
+      } else {
+        return new AIMessage(msg.content);
+      }
+    }) || [];
+
+    // Add timeout to the entire API request
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('API request timed out')), 20000);
     });
 
-    // Prepare conversation history for Mistral AI
-    const messages: ChatMessage[] = [
-      ...(history || []).map((msg: { role: string; content: string }) => ({
-        role: msg.role === 'user' ? 'user' : 'assistant',
-        content: msg.content,
-      } as ChatMessage)),
-      { role: 'user', content: message },
-    ];
-
-    // Send the message to Mistral AI
-    const aiMessage = await mistralService.sendMessage(messages);
-
-    return NextResponse.json({ message: aiMessage });
-  } catch (error) {
-    console.error('Chat API error:', error);
+    // Process the conversation with a timeout
+    const responsePromise = processConversation(message, langchainHistory);
     
-    let statusCode = 500;
-    let errorMessage = 'An unexpected error occurred';
-    
-    if (error instanceof Error) {
-      errorMessage = error.message;
+    try {
+      // Race between the API processing and the timeout
+      const response = await Promise.race([responsePromise, timeoutPromise]);
       
-      if (errorMessage.includes('API key')) {
-        statusCode = 401;
-      } else if (errorMessage.includes('Rate limit')) {
-        statusCode = 429;
-      }
+      // Return the AI response
+      return NextResponse.json({ response });
+    } catch (error) {
+      console.error('Request timed out or failed:', error);
+      // Return a fallback response
+      return NextResponse.json({ 
+        response: "I'm currently experiencing high demand. Let me assist you with simpler tasks while our systems catch up." 
+      });
     }
-    
+  } catch (error) {
+    console.error('Error in chat API:', error);
     return NextResponse.json(
-      { error: errorMessage },
-      { status: statusCode }
+      { response: 'Sorry, I encountered an error processing your message. Please try again.' },
+      { status: 200 } // Still return 200 to show error in chat instead of failing
     );
   }
 } 
