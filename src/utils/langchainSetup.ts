@@ -17,9 +17,9 @@ function getChatModel() {
   // Always create and return the model with the API key
   return new ChatMistralAI({
     apiKey: apiKey,
-    modelName: 'mistral-small-latest', // Changed from mistral-medium to a valid model name
-    temperature: 0.5, // Lower temperature for more focused responses
-    maxTokens: 1500, // Increased token limit for more detailed responses
+    modelName: 'mistral-large-latest', // Upgraded from small to large for better performance
+    temperature: 0.3, // Lower temperature for more focused and precise responses
+    maxTokens: 2000, // Increased token limit for more comprehensive responses
   });
 }
 
@@ -41,7 +41,7 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
     console.log(`Processing conversation with ${conversationHistory.length} messages`);
   }
   
-  // Create the prompt template
+  // Create the prompt template with enhanced domain knowledge
   const promptTemplate = PromptTemplate.fromTemplate(`
     You are Tzironis AI, a sophisticated business intelligence assistant for the Tzironis Business Suite.
     
@@ -51,11 +51,20 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
     - You maintain a professional, confident tone while being approachable
     - You prioritize actionable insights over general information
     
+    DOMAIN EXPERTISE:
+    - Business process automation and optimization
+    - Financial planning and analysis
+    - Digital transformation strategies
+    - Modern software architecture and development practices
+    - Data analytics and business intelligence
+    - AI implementation in enterprise environments
+    - Market analysis and competitive intelligence
+    
     USER PREFERENCES:
-    - If the user has selected PABLOS, focus on business strategy, market analysis, and growth opportunities
-    - If the user has selected GIORGOS, focus on technical implementations, coding solutions, and system architecture
-    - If the user has selected ACHILLIES, focus on data analytics, metrics, KPIs, and performance insights
-    - If the user has selected FAWZI, focus on AI implementation, machine learning solutions, and automation
+    - If the user has selected PABLOS, focus on business strategy, market analysis, growth opportunities, and financial planning
+    - If the user has selected GIORGOS, focus on technical implementations, coding solutions, system architecture, and IT infrastructure
+    - If the user has selected ACHILLIES, focus on data analytics, metrics, KPIs, performance insights, and business intelligence
+    - If the user has selected FAWZI, focus on AI implementation, machine learning solutions, automation, and digital transformation
     
     RESPONSE GUIDELINES:
     - Begin responses with direct answers before elaborating
@@ -63,6 +72,9 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
     - Provide specific examples when applicable
     - Mention relevant tools or methodologies when appropriate
     - End with a follow-up prompt or suggestion when helpful
+    - For technical topics, provide implementation details and best practices
+    - For business topics, offer strategic frameworks and actionable insights
+    - For analytical topics, suggest relevant metrics and visualization approaches
     
     Current conversation:
     {chatHistory}
@@ -92,22 +104,15 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
 // Process the conversation and return the AI response
 export async function processConversation(userMessage: string, conversationHistory: BaseMessage[]) {
   try {
-    // Check if we should use mock responses (when API key is invalid or for quick testing)
+    // Check if API key is present
     const apiKey = process.env.MISTRAL_API_KEY || '';
     
-    // Force demo mode for the specific API key in the file that's not working
-    const useMockResponse = !apiKey || 
-                           apiKey.trim() === '' || 
-                           apiKey === '5iHjJGV6WIGSipfkXxaGrri7saifgosq' || 
-                           process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-    
-    if (useMockResponse) {
-      console.log('Using mock response (invalid API key or demo mode enabled)');
-      // Return a mock response based on the user message
-      return generateMockResponse(userMessage, conversationHistory);
+    if (!apiKey || apiKey.trim() === '') {
+      console.error('Missing Mistral API key. Please set a valid API key in your environment variables.');
+      return 'I apologize, but I cannot process your request at the moment due to a configuration issue. Please contact the administrator to set up the AI service properly.';
     }
     
-    // Create the conversation chain directly
+    // Create the conversation chain
     const conversationChain = createConversationChain(conversationHistory);
     
     if (!conversationChain) {
@@ -118,7 +123,7 @@ export async function processConversation(userMessage: string, conversationHisto
     
     // Add timeout protection
     const timeoutPromise = new Promise<string>((_, reject) => {
-      setTimeout(() => reject(new Error('API call timed out')), 15000);
+      setTimeout(() => reject(new Error('API call timed out')), 25000); // Increased timeout for larger model
     });
     
     try {
@@ -133,12 +138,23 @@ export async function processConversation(userMessage: string, conversationHisto
       
       return response || 'I apologize, but I couldn\'t generate a response. Please try again.';
     } catch (error) {
-      console.error('API call failed, falling back to mock response:', error);
-      return generateMockResponse(userMessage, conversationHistory);
+      console.error('API call failed:', error);
+      // Provide a more helpful error message based on the error type
+      if (error instanceof Error) {
+        if (error.message.includes('timed out')) {
+          return 'I apologize for the delay. Our systems are currently busy processing your complex request. Please try asking a more specific question or try again in a moment.';
+        } else if (error.message.includes('401') || error.message.includes('authentication')) {
+          return 'I apologize, but there seems to be an authentication issue with our AI service. Please contact the administrator to verify the API key configuration.';
+        } else if (error.message.includes('429') || error.message.includes('rate limit')) {
+          return 'I apologize, but we\'ve reached our usage limit for the AI service. Please try again in a few minutes when our quota resets.';
+        }
+      }
+      
+      return 'I apologize, but I encountered an unexpected error processing your request. Please try again or contact support if the issue persists.';
     }
   } catch (error) {
     console.error('Error processing conversation:', error);
-    return generateMockResponse(userMessage, conversationHistory);
+    return 'I apologize, but I encountered an error while processing your request. Please try again or contact support if the issue persists.';
   }
 }
 
