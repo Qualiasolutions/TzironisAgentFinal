@@ -26,9 +26,10 @@ export default function ChatPage() {
     );
   }
   
-  // Validate agent
+  // Validate agent - convert both to uppercase for case-insensitive comparison
   const validAgents = ['PABLOS', 'GIORGOS', 'ACHILLIES', 'FAWZI'];
-  if (!validAgents.includes(agent)) {
+  const normalizedAgent = agent.toUpperCase();
+  if (!validAgents.includes(normalizedAgent)) {
     return (
       <div className="container">
         <div className="welcome-screen">
@@ -43,7 +44,7 @@ export default function ChatPage() {
   return (
     <div className="container">
       <main className="main">
-        <Chat agent={agent} />
+        <Chat agent={normalizedAgent} />
       </main>
     </div>
   );
