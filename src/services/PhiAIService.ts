@@ -34,10 +34,15 @@ export class PhiAIService {
         'Content-Type': 'application/json'
       };
       
-      if (this.apiKey) {
-        headers['Authorization'] = `Bearer ${this.apiKey}`;
+      if (!this.apiKey) {
+        console.error('No API key provided for Hugging Face');
+        throw new Error('Missing API key for authentication');
       }
+      
+      headers['Authorization'] = `Bearer ${this.apiKey}`;
 
+      console.log(`Sending request to ${this.modelUrl} with ${formattedMessages.length} messages`);
+      
       const response = await fetch(this.modelUrl, {
         method: 'POST',
         headers,
@@ -45,35 +50,48 @@ export class PhiAIService {
           inputs: formattedMessages,
           parameters: {
             temperature: 0.7,
-            max_new_tokens: 1024,
+            max_new_tokens: 512, // Reduced for faster responses
             top_p: 0.95,
-            do_sample: true
+            do_sample: true,
+            return_full_text: false
           }
         }),
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API error (${response.status}):`, errorText);
+        
         if (response.status === 401) {
           throw new Error('Authentication error: Invalid API key');
         } else if (response.status === 429) {
           throw new Error('Rate limit exceeded or quota reached');
+        } else if (response.status === 503) {
+          throw new Error('Hugging Face service unavailable. This could be due to high demand or service maintenance.');
         }
-        throw new Error(`API request failed with status ${response.status}`);
+        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
       }
 
       const result = await response.json();
+      console.log('Raw API response:', JSON.stringify(result).substring(0, 200) + '...');
       
       // Handle different response formats from Hugging Face API
       if (Array.isArray(result) && result.length > 0) {
         if (typeof result[0].generated_text === 'string') {
-          return result[0].generated_text;
+          return result[0].generated_text.trim();
         }
       }
 
       if (typeof result === 'object' && result !== null && typeof result.generated_text === 'string') {
-        return result.generated_text;
+        return result.generated_text.trim();
+      }
+      
+      // Additional fallback for other response formats
+      if (typeof result === 'string') {
+        return result.trim();
       }
 
+      console.error('Unexpected API response format:', JSON.stringify(result));
       throw new Error('Unexpected response format from API');
     } catch (error) {
       console.error('PhiAIService error:', error);

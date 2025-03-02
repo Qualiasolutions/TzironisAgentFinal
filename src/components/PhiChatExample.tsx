@@ -1,65 +1,105 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
 
-const PhiChatExample = () => {
-  const [input, setInput] = useState('');
+export default function PhiChatExample() {
+  const [input, setInput] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [agent, setAgent] = useState('Tzironis');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<string>('Pablos');
+
+  // Display welcome message on first load
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        {
+          role: 'assistant',
+          content: `I'm ${selectedAgent}. Hello! I'm your intelligent Tzironis Business Suite assistant powered by Microsoft's Phi-4. How can I help you today?`
+        }
+      ]);
+    }
+  }, [selectedAgent, messages.length]);
+
+  // Reset chat when agent changes
+  useEffect(() => {
+    setMessages([
+      {
+        role: 'assistant',
+        content: `I'm ${selectedAgent}. Hello! I'm your intelligent Tzironis Business Suite assistant powered by Microsoft's Phi-4. How can I help you today?`
+      }
+    ]);
+  }, [selectedAgent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
+    // Clear any previous errors
+    setError(null);
+    
     // Add user message to chat
-    const userMessage: ChatMessage = { role: 'user', content: input };
+    const userMessage = { role: 'user' as const, content: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
-      // Convert messages to LangChain format for the API
-      const history = messages.map((msg) => 
-        msg.role === 'user' 
+      // Convert messages to format expected by API
+      const history = messages.map((msg) => {
+        return msg.role === 'user' 
           ? new HumanMessage(msg.content) 
-          : new AIMessage(msg.content)
-      );
+          : new AIMessage(msg.content);
+      });
 
-      // Call the Phi-4 API route
-      const response = await fetch('/api/chat/phi', {
+      // Make API request
+      const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: input, 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: input,
           history,
-          agent 
+          agent: selectedAgent
         }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API error:', errorText);
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
       const data = await response.json();
       
-      // Add AI response to chat
-      const aiMessage: ChatMessage = { 
-        role: 'assistant', 
-        content: data.message 
-      };
-      
-      setMessages((prev) => [...prev, aiMessage]);
+      if (data.message) {
+        // Add AI response to chat
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: data.message }
+        ]);
+      } else {
+        throw new Error('Empty response from API');
+      }
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error calling API:', error);
+      setError(
+        'I encountered an error processing your request. This could be due to a connection issue or service limitations. Please try again later.'
+      );
       // Add error message to chat
       setMessages((prev) => [
-        ...prev, 
+        ...prev,
         { 
           role: 'assistant', 
-          content: 'Sorry, I encountered an error processing your request. Please try again.' 
+          content: 'I apologize, but I encountered an unexpected error processing your request. Please try again or contact support if the issue persists.' 
         }
       ]);
     } finally {
@@ -67,70 +107,70 @@ const PhiChatExample = () => {
     }
   };
 
-  const handleAgentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setAgent(e.target.value);
-  };
-
   return (
-    <div className="phi-chat-container">
-      <div className="phi-chat-header">
-        <h2>Chat with Phi-4 Mini</h2>
-        <div className="agent-selector">
-          <label htmlFor="agent-select">Select Agent: </label>
+    <ErrorBoundary>
+      <div className="phi-chat-container">
+        <div className="phi-chat-header">
+          <h3>Chat with {selectedAgent}</h3>
           <select 
-            id="agent-select"
-            value={agent} 
-            onChange={handleAgentChange}
+            value={selectedAgent}
+            onChange={(e) => setSelectedAgent(e.target.value)}
+            className="agent-selector"
           >
             <option value="Tzironis">Tzironis (General)</option>
-            <option value="Pablos">Pablos (Technical)</option>
+            <option value="Pablos">Pablos (Tech)</option>
             <option value="Giorgos">Giorgos (Business)</option>
-            <option value="Achillies">Achillies (Creative)</option>
-            <option value="Fawzi">Fawzi (Data Analysis)</option>
+            <option value="Achillies">Achillies (Analytics)</option>
+            <option value="Fawzi">Fawzi (Innovation)</option>
           </select>
         </div>
-      </div>
-
-      <div className="phi-messages-container">
-        {messages.length === 0 ? (
-          <div className="empty-chat">
-            <p>Start a conversation with the Phi-4 Mini model</p>
-          </div>
-        ) : (
-          messages.map((msg, idx) => (
-            <div 
-              key={idx} 
-              className={`message ${msg.role === 'user' ? 'user-message' : 'assistant-message'}`}
-            >
-              <div className="message-content">{msg.content}</div>
+        
+        <div className="messages-container">
+          {messages.length === 0 ? (
+            <div className="empty-chat">
+              <p>No messages yet. Start the conversation!</p>
             </div>
-          ))
-        )}
-        {isLoading && (
-          <div className="message assistant-message">
-            <div className="message-content loading">
-              <span className="dot"></span>
-              <span className="dot"></span>
-              <span className="dot"></span>
+          ) : (
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
+              >
+                <div className="message-content">{message.content}</div>
+              </div>
+            ))
+          )}
+          
+          {isLoading && (
+            <div className="assistant-message loading">
+              <div className="loading-indicator">
+                <span className="dot"></span>
+                <span className="dot"></span>
+                <span className="dot"></span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+          
+          {error && (
+            <div className="error-message">
+              <p>{error}</p>
+            </div>
+          )}
+        </div>
+        
+        <form onSubmit={handleSubmit} className="input-form">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            disabled={isLoading}
+          />
+          <button type="submit" disabled={isLoading || !input.trim()}>
+            {isLoading ? 'Sending...' : 'Send'}
+          </button>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit} className="phi-input-form">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message here..."
-          disabled={isLoading}
-        />
-        <button type="submit" disabled={isLoading || !input.trim()}>
-          Send
-        </button>
-      </form>
-    </div>
+    </ErrorBoundary>
   );
-};
-
-export default PhiChatExample; 
+} 

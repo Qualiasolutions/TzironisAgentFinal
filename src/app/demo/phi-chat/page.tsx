@@ -1,4 +1,5 @@
 import PhiChatExample from '@/components/PhiChatExample';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export const metadata = {
   title: 'Phi-4 Mini Chat Demo | Tzironis Business Suite',
@@ -16,7 +17,9 @@ export default function PhiChatDemoPage() {
       </div>
       
       <div className="demo-content">
-        <PhiChatExample />
+        <ErrorBoundary>
+          <PhiChatExample />
+        </ErrorBoundary>
       </div>
       
       <div className="demo-info">
@@ -31,7 +34,7 @@ export default function PhiChatDemoPage() {
         <ul>
           <li>Free tier access with reasonable usage limits</li>
           <li>Specialized agent personas with different expertise areas</li>
-          <li>Compact model size (18.9K) with impressive capabilities</li>
+          <li>Compact model size (4B parameters) with impressive capabilities</li>
           <li>Optimized for instruction following and chat interactions</li>
         </ul>
         
@@ -41,6 +44,18 @@ export default function PhiChatDemoPage() {
           Phi-4-mini-instruct model. This approach allows for easy deployment without the 
           need for specialized hardware or complex setups.
         </p>
+        
+        <div className="setup-note">
+          <h3>⚠️ Configuration Note</h3>
+          <p>
+            To use this feature, the <code>HUGGINGFACE_API_KEY</code> environment variable 
+            must be configured in your deployment environment. If you're seeing errors, 
+            please verify this configuration is in place.
+          </p>
+          <p>
+            You can get a free API key by signing up at <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer">Hugging Face</a>.
+          </p>
+        </div>
       </div>
     </div>
   );

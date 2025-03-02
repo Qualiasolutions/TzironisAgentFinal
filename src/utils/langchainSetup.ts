@@ -14,6 +14,10 @@ function getChatModel() {
   const maskedKey = apiKey ? `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}` : 'not set';
   console.log(`Using Hugging Face API key: ${maskedKey}`);
   
+  if (!apiKey) {
+    console.error('HUGGINGFACE_API_KEY is not set in environment variables');
+  }
+  
   // Create and return PhiAIService instance
   return new PhiAIService(apiKey);
 }
@@ -140,9 +144,9 @@ export async function processConversation(userMessage: string, conversationHisto
     
     const { chain, callbacks } = conversationChain;
     
-    // Add timeout protection
+    // Add timeout protection - reducing to 8 seconds for Vercel compatibility
     const timeoutPromise = new Promise<string>((_, reject) => {
-      setTimeout(() => reject(new Error('API call timed out')), 25000);
+      setTimeout(() => reject(new Error('API call timed out')), 8000);
     });
     
     try {

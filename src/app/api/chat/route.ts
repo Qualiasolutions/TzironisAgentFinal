@@ -1,3 +1,6 @@
+// Force Node.js runtime for better compatibility with API calls
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { processConversation } from '@/utils/langchainSetup';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
@@ -36,6 +39,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Log API call for debugging
+    console.log(`Chat request received: agent=${agent || 'default'}, message length=${message.length}`);
+    
+    // Check for Hugging Face API key
+    if (!process.env.HUGGINGFACE_API_KEY) {
+      console.error('Missing HUGGINGFACE_API_KEY in environment variables');
+      return NextResponse.json(
+        { message: "I apologize, but I cannot process your request at the moment due to a configuration issue. Please contact the administrator to set up the AI service properly." },
+        { status: 200 } // Return 200 to display the error message in the chat
+      );
+    }
+
     // Convert history to LangChain message format with validation
     const langchainHistory = Array.isArray(history) 
       ? history.filter((msg: MessageValidation) => 
@@ -51,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     // Add timeout to the entire API request (25 seconds)
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('API request timed out')), 25000);
+      setTimeout(() => reject(new Error('API request timed out')), 10000);
     });
 
     // Process the conversation with a timeout
