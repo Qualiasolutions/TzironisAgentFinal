@@ -28,7 +28,21 @@ const ERROR_RESPONSES = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, history, agent } = await request.json();
+    let message, history, agent;
+    
+    try {
+      // Parse the request body and handle potential JSON parse errors
+      const body = await request.json();
+      message = body.message;
+      history = body.history;
+      agent = body.agent;
+    } catch (error) {
+      console.error('Error parsing request JSON:', error);
+      return NextResponse.json(
+        { message: "I couldn't process your message format. Please try again." },
+        { status: 400 }
+      );
+    }
 
     // Validate input
     if (!message || typeof message !== 'string') {
@@ -41,6 +55,11 @@ export async function POST(request: NextRequest) {
 
     // Log API call for debugging
     console.log(`Chat request received: agent=${agent || 'default'}, message length=${message.length}`);
+    
+    // Detailed log of incoming request
+    console.log('Request history:', 
+      Array.isArray(history) ? `${history.length} messages` : 'Invalid history format'
+    );
     
     // Check for Hugging Face API key
     if (!process.env.HUGGINGFACE_API_KEY) {
@@ -64,19 +83,19 @@ export async function POST(request: NextRequest) {
         }) 
       : [];
 
-    // Add timeout to the entire API request (25 seconds)
+    // Add timeout to the entire API request (8 seconds for Vercel compatibility)
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('API request timed out')), 10000);
+      setTimeout(() => reject(new Error('API request timed out')), 8000);
     });
 
     // Process the conversation with a timeout
-    const responsePromise = processConversation(message, langchainHistory);
+    const responsePromise = processConversation(message, langchainHistory, agent);
     
     try {
       // Race between the API processing and the timeout
       const response = await Promise.race([responsePromise, timeoutPromise]);
       
-      // Return the AI response with the correct key 'message' instead of 'response'
+      // Return the AI response with the correct key 'message'
       return NextResponse.json({ message: response });
     } catch (error) {
       console.error('Request failed:', error);

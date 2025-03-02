@@ -43,59 +43,68 @@ export class PhiAIService {
 
       console.log(`Sending request to ${this.modelUrl} with ${formattedMessages.length} messages`);
       
-      const response = await fetch(this.modelUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          inputs: formattedMessages,
-          parameters: {
-            temperature: 0.7,
-            max_new_tokens: 512, // Reduced for faster responses
-            top_p: 0.95,
-            do_sample: true,
-            return_full_text: false
+      try {
+        const response = await fetch(this.modelUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            inputs: formattedMessages,
+            parameters: {
+              temperature: 0.7,
+              max_new_tokens: 512, // Reduced for faster responses
+              top_p: 0.95,
+              do_sample: true,
+              return_full_text: false
+            }
+          }),
+        });
+  
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`API error (${response.status}):`, errorText);
+          
+          if (response.status === 401) {
+            throw new Error('Authentication error: Invalid API key');
+          } else if (response.status === 429) {
+            throw new Error('Rate limit exceeded or quota reached');
+          } else if (response.status === 503) {
+            // Instead of throwing an error, generate a fallback response
+            return this.generateFallbackResponse(userMessage, agent);
           }
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API error (${response.status}):`, errorText);
+          throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+        }
+  
+        const result = await response.json();
+        console.log('Raw API response:', JSON.stringify(result).substring(0, 200) + '...');
         
-        if (response.status === 401) {
-          throw new Error('Authentication error: Invalid API key');
-        } else if (response.status === 429) {
-          throw new Error('Rate limit exceeded or quota reached');
-        } else if (response.status === 503) {
-          throw new Error('Hugging Face service unavailable. This could be due to high demand or service maintenance.');
+        // Handle different response formats from Hugging Face API
+        if (Array.isArray(result) && result.length > 0) {
+          if (typeof result[0].generated_text === 'string') {
+            return result[0].generated_text.trim();
+          }
         }
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('Raw API response:', JSON.stringify(result).substring(0, 200) + '...');
-      
-      // Handle different response formats from Hugging Face API
-      if (Array.isArray(result) && result.length > 0) {
-        if (typeof result[0].generated_text === 'string') {
-          return result[0].generated_text.trim();
+  
+        if (typeof result === 'object' && result !== null && typeof result.generated_text === 'string') {
+          return result.generated_text.trim();
         }
+        
+        // Additional fallback for other response formats
+        if (typeof result === 'string') {
+          return result.trim();
+        }
+  
+        console.error('Unexpected API response format:', JSON.stringify(result));
+        return this.generateFallbackResponse(userMessage, agent);
+      } catch (error) {
+        // If API call fails completely, use fallback
+        console.error('API call error:', error);
+        return this.generateFallbackResponse(userMessage, agent);
       }
-
-      if (typeof result === 'object' && result !== null && typeof result.generated_text === 'string') {
-        return result.generated_text.trim();
-      }
-      
-      // Additional fallback for other response formats
-      if (typeof result === 'string') {
-        return result.trim();
-      }
-
-      console.error('Unexpected API response format:', JSON.stringify(result));
-      throw new Error('Unexpected response format from API');
     } catch (error) {
       console.error('PhiAIService error:', error);
-      throw error;
+      
+      // Provide a fallback response instead of throwing
+      return this.generateFallbackResponse(userMessage, agent);
     }
   }
   
@@ -144,5 +153,33 @@ export class PhiAIService {
       default:
         return `${basePrompt} You excel at understanding user needs and providing practical solutions for business automation and productivity.`;
     }
+  }
+  
+  /**
+   * Generates a fallback response when the API is unavailable
+   */
+  private generateFallbackResponse(userMessage: string, agent: string): string {
+    const lowercaseMessage = userMessage.toLowerCase();
+    
+    // Simple question-answer fallbacks
+    if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi') || lowercaseMessage.length < 5) {
+      return `Hello! I'm ${agent}, your Tzironis Business Suite assistant. How can I help you today?`;
+    }
+    
+    if (lowercaseMessage.includes('how are you')) {
+      return `I'm doing well, thank you for asking! As your ${agent} assistant, I'm ready to help with your business needs.`;
+    }
+    
+    if (lowercaseMessage === 'why') {
+      return `I understand you're asking why there might be an issue. Currently, our connection to the AI service is experiencing temporary difficulties. This could be due to high demand or scheduled maintenance. Please try again in a few moments.`;
+    }
+    
+    // Generic fallback based on detected intent
+    if (lowercaseMessage.includes('help') || lowercaseMessage.includes('can you')) {
+      return `I'd be happy to help you with that. However, I'm currently operating in fallback mode due to a temporary service limitation. Please try again in a few minutes when our AI service connection is restored.`;
+    }
+    
+    // Default fallback response
+    return `I apologize, but I'm currently experiencing connection issues with our AI service. This is likely a temporary problem due to high demand or scheduled maintenance. Please try again in a few minutes, or contact support if the issue persists.`;
   }
 } 

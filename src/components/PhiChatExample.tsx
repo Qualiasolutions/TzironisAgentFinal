@@ -59,23 +59,56 @@ export default function PhiChatExample() {
           : new AIMessage(msg.content);
       });
 
-      // Make API request
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: input,
-          history,
-          agent: selectedAgent
-        }),
-      });
+      // Make API request with retry logic
+      let response;
+      let retryCount = 0;
+      const maxRetries = 2;
+      
+      while (retryCount <= maxRetries) {
+        try {
+          response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: input,
+              history,
+              agent: selectedAgent
+            }),
+          });
+          
+          // If successful, break out of retry loop
+          if (response.ok) break;
+          
+          // If got a 503 error, retry
+          if (response.status === 503) {
+            retryCount++;
+            if (retryCount <= maxRetries) {
+              // Add short delay before retry
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              continue;
+            }
+          }
+          
+          // For other errors, throw immediately
+          throw new Error(`API request failed with status ${response.status}`);
+        } catch (err) {
+          // Network error (like CORS, timeout, etc)
+          retryCount++;
+          if (retryCount <= maxRetries) {
+            // Add short delay before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            continue;
+          }
+          throw err;
+        }
+      }
 
-      if (!response.ok) {
-        const errorText = await response.text();
+      if (!response || !response.ok) {
+        const errorText = await response?.text() || 'Network error';
         console.error('API error:', errorText);
-        throw new Error(`API request failed with status ${response.status}`);
+        throw new Error(`Failed to get response from server: ${response?.status || 'Network error'}`);
       }
 
       const data = await response.json();
@@ -91,9 +124,22 @@ export default function PhiChatExample() {
       }
     } catch (error) {
       console.error('Error calling API:', error);
-      setError(
-        'I encountered an error processing your request. This could be due to a connection issue or service limitations. Please try again later.'
-      );
+      
+      // Show a specific error message based on the error
+      let errorMessage = 'I encountered an error processing your request. This could be due to a connection issue or service limitations. Please try again later.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('503') || error.message.includes('service unavailable')) {
+          errorMessage = 'The AI service is currently unavailable due to high demand. Please try again in a few minutes.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'The request took too long to process. Please try a shorter message or try again later.';
+        } else if (error.message.includes('Network error')) {
+          errorMessage = 'There seems to be a network connectivity issue. Please check your internet connection and try again.';
+        }
+      }
+      
+      setError(errorMessage);
+      
       // Add error message to chat
       setMessages((prev) => [
         ...prev,

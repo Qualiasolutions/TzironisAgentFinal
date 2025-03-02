@@ -125,7 +125,11 @@ function extractAgentFromHistory(history: BaseMessage[]): string {
 }
 
 // Process the conversation and return the AI response
-export async function processConversation(userMessage: string, conversationHistory: BaseMessage[]) {
+export async function processConversation(
+  userMessage: string, 
+  conversationHistory: BaseMessage[],
+  agent?: string
+) {
   try {
     // Check if API key is present
     const apiKey = process.env.HUGGINGFACE_API_KEY || '';
@@ -154,7 +158,8 @@ export async function processConversation(userMessage: string, conversationHisto
       const response = await Promise.race([
         chain.invoke({
           chatHistory: conversationHistory,
-          userInput: userMessage
+          userInput: userMessage,
+          agent: agent || extractAgentFromHistory(conversationHistory)
         }, { callbacks }),
         timeoutPromise
       ]) as string;
