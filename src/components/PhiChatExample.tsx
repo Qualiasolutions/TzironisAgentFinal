@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 
