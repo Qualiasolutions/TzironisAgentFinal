@@ -5,13 +5,13 @@
   "scripts": {
     "dev": "next dev --turbo",
     "clean": "rimraf .next",
-    "build": "npm run clean && npm install && npm install --save @types/react@19.0.10 @types/react-dom@19.0.4 && next build",
+    "build": "npm run clean && npm install --legacy-peer-deps && next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@langchain/community": "0.3.33",
-    "@langchain/core": "^0.1.25",
+    "@langchain/core": "0.3.42",
     "@langchain/mistralai": "^0.2.0",
     "@tabler/icons-react": "^3.30.0",
     "@types/node": "^20",
