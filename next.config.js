@@ -13,6 +13,13 @@ const nextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb'
+    },
+    // Enable Turbopack properly
+    turbo: {
+      resolveAlias: {
+        // Mirror the webpack extensionAlias config
+        '.js': ['.js', '.ts', '.tsx']
+      }
     }
   },
   // React 19 compatibility

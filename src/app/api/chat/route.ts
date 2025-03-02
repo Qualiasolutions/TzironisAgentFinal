@@ -2,7 +2,7 @@
 export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { processConversation } from '@/utils/langchainSetup';
+import { processConversation } from '@/utils/mistralSetup';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 
 // Define proper types for chat history
@@ -11,10 +11,16 @@ interface ChatMessage {
   content: string;
 }
 
+interface MistralMessage {
+  type: 'human' | 'ai';
+  content: string;
+}
+
 // Message validation interface
 interface MessageValidation {
   role?: string;
   content?: string;
+  type?: string;
   [key: string]: unknown;
 }
 
@@ -26,105 +32,69 @@ const ERROR_RESPONSES = {
   general: "I apologize for the inconvenience. There was an unexpected error. Let's try a different approach to your question."
 };
 
+// API route handler for chat requests
 export async function POST(request: NextRequest) {
   try {
-    let message, history, agent;
+    // Parse the request body
+    const body = await request.json();
+    const { message, history, agent } = body;
     
-    try {
-      // Parse the request body and handle potential JSON parse errors
-      const body = await request.json();
-      message = body.message;
-      history = body.history;
-      agent = body.agent;
-    } catch (error) {
-      console.error('Error parsing request JSON:', error);
+    // Validate required parameters
+    if (!message) {
       return NextResponse.json(
-        { message: "I couldn't process your message format. Please try again." },
+        { error: 'Message is required' },
         { status: 400 }
       );
     }
-
-    // Validate input
-    if (!message || typeof message !== 'string') {
-      console.warn('Invalid message format received');
-      return NextResponse.json(
-        { message: ERROR_RESPONSES.validation },
-        { status: 400 }
-      );
+    
+    // Format history into LangChain message format
+    let formattedHistory;
+    
+    if (Array.isArray(history)) {
+      // Handle different message formats that might come from different components
+      formattedHistory = history.map((msg: any) => {
+        if (msg.type === 'human') {
+          return new HumanMessage(msg.content);
+        } else if (msg.type === 'ai') {
+          return new AIMessage(msg.content);
+        } else if (msg.role === 'user') {
+          return new HumanMessage(msg.content);
+        } else if (msg.role === 'assistant') {
+          return new AIMessage(msg.content);
+        } else {
+          // Default fallback
+          return new AIMessage(msg.content || '');
+        }
+      });
+    } else {
+      formattedHistory = [];
     }
 
-    // Log API call for debugging
-    console.log(`Chat request received: agent=${agent || 'default'}, message length=${message.length}`);
+    console.log(`Processing chat request with agent: ${agent || 'default'}`);
     
-    // Detailed log of incoming request
-    console.log('Request history:', 
-      Array.isArray(history) ? `${history.length} messages` : 'Invalid history format'
-    );
+    // Process the conversation using Mistral AI
+    const response = await processConversation(message, formattedHistory, agent);
     
-    // Check for Hugging Face API key
-    if (!process.env.HUGGINGFACE_API_KEY) {
-      console.error('Missing HUGGINGFACE_API_KEY in environment variables');
-      return NextResponse.json(
-        { message: "I apologize, but I cannot process your request at the moment due to a configuration issue. Please contact the administrator to set up the AI service properly." },
-        { status: 200 } // Return 200 to display the error message in the chat
-      );
-    }
-
-    // Convert history to LangChain message format with validation
-    const langchainHistory = Array.isArray(history) 
-      ? history.filter((msg: MessageValidation) => 
-          msg && typeof msg === 'object' && 
-          (msg.role === 'user' || msg.role === 'assistant') && 
-          typeof msg.content === 'string'
-        ).map((msg: ChatMessage) => {
-          return msg.role === 'user' 
-            ? new HumanMessage(msg.content) 
-            : new AIMessage(msg.content);
-        }) 
-      : [];
-
-    // Add timeout to the entire API request (8 seconds for Vercel compatibility)
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('API request timed out')), 8000);
-    });
-
-    // Process the conversation with a timeout
-    const responsePromise = processConversation(message, langchainHistory, agent);
-    
-    try {
-      // Race between the API processing and the timeout
-      const response = await Promise.race([responsePromise, timeoutPromise]);
-      
-      // Return the AI response with the correct key 'message'
-      return NextResponse.json({ message: response });
-    } catch (error) {
-      console.error('Request failed:', error);
-      
-      // Return appropriate fallback based on error type
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log('Detailed error:', JSON.stringify(error));
-      
-      if (errorMessage.includes('timed out')) {
-        return NextResponse.json({ message: ERROR_RESPONSES.timeout });
-      } else if (errorMessage.includes('Rate limit') || errorMessage.includes('429')) {
-        return NextResponse.json({ 
-          message: "I apologize, but we've reached our usage limit for the AI service. Please try again in a few minutes."
-        });
-      } else if (errorMessage.includes('Authentication') || errorMessage.includes('401')) {
-        return NextResponse.json({ 
-          message: "I apologize, but there seems to be an authentication issue with our AI service. Please contact the administrator."
-        });
-      } else {
-        return NextResponse.json({ 
-          message: ERROR_RESPONSES.apiFailure
-        });
-      }
-    }
+    // Return the AI response
+    return NextResponse.json({ message: response });
   } catch (error) {
-    console.error('Error in chat API:', error);
+    console.error('Error processing chat request:', error);
+    
+    // Return an appropriate error response
     return NextResponse.json(
-      { message: ERROR_RESPONSES.general },
-      { status: 200 } // Still return 200 to show error in chat instead of failing
+      { 
+        error: error instanceof Error 
+          ? error.message 
+          : 'An unknown error occurred while processing your request'
+      },
+      { status: 500 }
     );
   }
+}
+
+// Optional: Handle GET requests
+export async function GET(request: NextRequest) {
+  return NextResponse.json(
+    { info: 'Chat API is working. Send POST requests to interact with Mistral AI.' }
+  );
 } 

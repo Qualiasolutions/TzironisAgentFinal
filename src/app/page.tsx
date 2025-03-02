@@ -15,7 +15,9 @@ import {
   IconDatabase,
   IconMenu2,
   IconX,
-  IconDashboard
+  IconDashboard,
+  IconBrandOpenai,
+  IconTool
 } from '@tabler/icons-react';
 
 export default function Home() {
@@ -80,7 +82,7 @@ export default function Home() {
               Welcome to Tzironis Business Suite
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-10">
-              Your intelligent business companion. Select an AI specialist to help with your specific business needs or explore our automation tools.
+              Intelligent business automation powered by Mistral AI
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/automation" className="bg-primary hover:bg-primary-light text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 shadow-md hover:shadow-hover flex items-center">
@@ -159,6 +161,74 @@ export default function Home() {
                   <IconArrowRight size={18} className="ml-2 transition-transform" />
                 </Link>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 px-4 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">New Features</h2>
+              <p className="text-gray-600 max-w-3xl mx-auto">Discover the latest additions to our suite</p>
+            </div>
+            
+            <div className="card-grid">
+              <Link href="/chat/mistral" className="card">
+                <div className="card-content">
+                  <IconBrain className="card-icon" size={48} />
+                  <h2>Mistral AI Chat</h2>
+                  <p>
+                    Chat with our advanced Mistral-powered assistant that can automate business tasks.
+                  </p>
+                </div>
+              </Link>
+
+              <Link href="/dashboard" className="card">
+                <div className="card-content">
+                  <IconDashboard className="card-icon" size={48} />
+                  <h2>Business Dashboard</h2>
+                  <p>Monitor key metrics and analytics for your business growth.</p>
+                </div>
+              </Link>
+
+              <Link href="/tools" className="card">
+                <div className="card-content">
+                  <IconTool className="card-icon" size={48} />
+                  <h2>Business Tools</h2>
+                  <p>Access specialized tools for web scraping, invoicing, and data management.</p>
+                </div>
+              </Link>
+
+              <Link href="/automations" className="card">
+                <div className="card-content">
+                  <IconRobot className="card-icon" size={48} />
+                  <h2>Automations</h2>
+                  <p>Set up automated workflows to streamline your business processes.</p>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 px-4 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Powered by Mistral AI</h2>
+              <p className="text-gray-600 max-w-3xl mx-auto">
+                Our business suite now integrates Mistral AI technology to provide intelligent 
+                automation capabilities for your business needs. The system can scrape data from websites,
+                generate invoices, interact with your business data, and more.
+              </p>
+            </div>
+            
+            <div className="info-section">
+              <h3>Key Features</h3>
+              <ul>
+                <li>Web Scraping: Extract structured data from any website automatically</li>
+                <li>Invoice Generation: Create and manage professional invoices with ease</li>
+                <li>Business Data Integration: Connect directly with tzironis.gr systems</li>
+                <li>Automated Reporting: Generate insights from your business data</li>
+              </ul>
             </div>
           </div>
         </section>

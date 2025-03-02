@@ -3,23 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbo",
     "clean": "rimraf .next",
     "build": "npm run clean && npm install && npm install --save @types/react@19.0.10 @types/react-dom@19.0.4 && next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@huggingface/inference": "^2.8.1",
     "@langchain/community": "0.3.33",
-    "@langchain/mistralai": "0.2.0",
-    "@langchain/openai": "0.4.4",
+    "@langchain/core": "^0.1.25",
+    "@langchain/mistralai": "^0.2.0",
     "@tabler/icons-react": "^3.30.0",
     "@types/node": "^20",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/react-speech-recognition": "^3.9.6",
-    "@types/selenium-webdriver": "^4.1.28",
     "axios": "^1.8.1",
     "cheerio": "^1.0.0-rc.12",
     "i18next": "^24.2.2",
@@ -31,8 +29,6 @@
     "react-dom": "^19.0.0",
     "react-i18next": "^15.4.1",
     "react-speech-recognition": "^3.10.0",
-    "selenium-webdriver": "^4.29.0",
-    "transformers": "^3.1.0",
     "web-speech-cognitive-services": "^8.1.1"
   },
   "devDependencies": {
