@@ -62,7 +62,7 @@ const Chat: React.FC<ChatProps> = ({ agent }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `I'm ${agent}. Hello! I'm your intelligent Tzironis Business Suite assistant. How can I help you today?`,
+      content: `I'm ${agent}. Hello! I'm your intelligent Tzironis Business Suite assistant powered by Microsoft's Phi-4. How can I help you today?`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -221,7 +221,7 @@ const Chat: React.FC<ChatProps> = ({ agent }) => {
           <button className="back-button" onClick={handleBack} aria-label="Back to agent selection">
             <IconArrowLeft size={18} />
           </button>
-          <span className="chat-title">Conversation with {agent}</span>
+          <span className="chat-title">Conversation with {agent} (Phi-4)</span>
         </div>
       </div>
       

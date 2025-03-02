@@ -1,4 +1,4 @@
-import { ChatMistralAI } from '@langchain/mistralai';
+import { PhiAIService } from '@/services/PhiAIService';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
@@ -6,26 +6,21 @@ import { BaseMessage } from '@langchain/core/messages';
 import { LangChainTracer } from '@langchain/core/tracers/tracer_langchain';
 import { ConsoleCallbackHandler } from '@langchain/core/tracers/console';
 
-// Get Mistral AI configuration
+// Get Phi-4 AI model instance
 function getChatModel() {
-  const apiKey = process.env.MISTRAL_API_KEY || '';
+  const apiKey = process.env.HUGGINGFACE_API_KEY || '';
   
   // Debug: Check if API key is loaded correctly (mask most of it for security)
   const maskedKey = apiKey ? `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}` : 'not set';
-  console.log(`Using Mistral API key: ${maskedKey}`);
+  console.log(`Using Hugging Face API key: ${maskedKey}`);
   
-  // Always create and return the model with the API key
-  return new ChatMistralAI({
-    apiKey: apiKey,
-    modelName: 'mistral-large-latest', // Upgraded from small to large for better performance
-    temperature: 0.3, // Lower temperature for more focused and precise responses
-    maxTokens: 2000, // Increased token limit for more comprehensive responses
-  });
+  // Create and return PhiAIService instance
+  return new PhiAIService(apiKey);
 }
 
 // Create a conversation chain with the given history
 export function createConversationChain(conversationHistory: BaseMessage[]) {
-  const model = getChatModel();
+  const phiService = getChatModel();
   
   // Create tracers for monitoring
   const tracers = [];
@@ -83,32 +78,56 @@ export function createConversationChain(conversationHistory: BaseMessage[]) {
     AI Assistant:
   `);
   
+  // Create a function that uses PhiAIService to generate responses
+  const generatePhiResponse = async (input: { chatHistory: BaseMessage[]; userInput: string }) => {
+    try {
+      const response = await phiService.generateResponse(
+        input.userInput, 
+        input.chatHistory,
+        extractAgentFromHistory(input.chatHistory)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error generating Phi response:', error);
+      throw error;
+    }
+  };
+  
   // Create the runnable chain
   const chain = RunnableSequence.from([
     {
-      chatHistory: (input: { chatHistory: BaseMessage[]; userInput: string }) => 
-        input.chatHistory.map(message => 
-          `${message._getType()}: ${message.content}`
-        ).join("\n"),
-      userInput: (input: { chatHistory: BaseMessage[]; userInput: string }) => 
-        input.userInput
+      chatHistory: (input: { chatHistory: BaseMessage[]; userInput: string }) => input.chatHistory,
+      userInput: (input: { chatHistory: BaseMessage[]; userInput: string }) => input.userInput
     },
-    promptTemplate,
-    model,
+    generatePhiResponse,
     new StringOutputParser()
   ]);
   
   return { chain, callbacks: tracers };
 }
 
+// Extract agent name from conversation history
+function extractAgentFromHistory(history: BaseMessage[]): string {
+  if (history.length > 0) {
+    const firstMessage = history[0].content as string;
+    if (firstMessage.includes("I'm ")) {
+      const agentName = firstMessage.split("I'm ")[1]?.split(".")[0]?.trim();
+      if (agentName) {
+        return agentName;
+      }
+    }
+  }
+  return 'Tzironis';
+}
+
 // Process the conversation and return the AI response
 export async function processConversation(userMessage: string, conversationHistory: BaseMessage[]) {
   try {
     // Check if API key is present
-    const apiKey = process.env.MISTRAL_API_KEY || '';
+    const apiKey = process.env.HUGGINGFACE_API_KEY || '';
     
     if (!apiKey || apiKey.trim() === '') {
-      console.error('Missing Mistral API key. Please set a valid API key in your environment variables.');
+      console.error('Missing Hugging Face API key. Please set a valid API key in your environment variables.');
       return 'I apologize, but I cannot process your request at the moment due to a configuration issue. Please contact the administrator to set up the AI service properly.';
     }
     
@@ -123,7 +142,7 @@ export async function processConversation(userMessage: string, conversationHisto
     
     // Add timeout protection
     const timeoutPromise = new Promise<string>((_, reject) => {
-      setTimeout(() => reject(new Error('API call timed out')), 25000); // Increased timeout for larger model
+      setTimeout(() => reject(new Error('API call timed out')), 25000);
     });
     
     try {

@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processConversation } from '@/utils/langchainSetup';
+import { PhiAIService } from '@/services/PhiAIService';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 
-// Define proper types for chat history
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-// Message validation interface
-interface MessageValidation {
-  role?: string;
-  content?: string;
-  [key: string]: unknown;
-}
+// Create instance of PhiAIService
+const phiService = new PhiAIService(process.env.HUGGINGFACE_API_KEY);
 
 // Custom error responses for different scenarios
 const ERROR_RESPONSES = {
@@ -36,50 +26,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert history to LangChain message format with validation
+    // Convert history to LangChain message format
     const langchainHistory = Array.isArray(history) 
-      ? history.filter((msg: MessageValidation) => 
-          msg && typeof msg === 'object' && 
-          (msg.role === 'user' || msg.role === 'assistant') && 
-          typeof msg.content === 'string'
-        ).map((msg: ChatMessage) => {
-          return msg.role === 'user' 
+      ? history.map((msg: any) => {
+          return msg._getType() === 'human' 
             ? new HumanMessage(msg.content) 
             : new AIMessage(msg.content);
-        }) 
+        })
       : [];
 
     // Add timeout to the entire API request (25 seconds)
-    const timeoutPromise = new Promise((_, reject) => {
+    const timeoutPromise = new Promise<string>((_, reject) => {
       setTimeout(() => reject(new Error('API request timed out')), 25000);
     });
 
-    // Process the conversation with a timeout
-    const responsePromise = processConversation(message, langchainHistory);
+    // Process the message with Phi model
+    const responsePromise = phiService.generateResponse(message, langchainHistory, agent);
     
     try {
       // Race between the API processing and the timeout
       const response = await Promise.race([responsePromise, timeoutPromise]);
       
-      // Return the AI response with the correct key 'message' instead of 'response'
+      // Return the AI response
       return NextResponse.json({ message: response });
     } catch (error) {
       console.error('Request failed:', error);
       
       // Return appropriate fallback based on error type
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log('Detailed error:', JSON.stringify(error));
       
       if (errorMessage.includes('timed out')) {
         return NextResponse.json({ message: ERROR_RESPONSES.timeout });
-      } else if (errorMessage.includes('Rate limit') || errorMessage.includes('429')) {
-        return NextResponse.json({ 
-          message: "I apologize, but we've reached our usage limit for the AI service. Please try again in a few minutes."
-        });
-      } else if (errorMessage.includes('Authentication') || errorMessage.includes('401')) {
-        return NextResponse.json({ 
-          message: "I apologize, but there seems to be an authentication issue with our AI service. Please contact the administrator."
-        });
       } else {
         return NextResponse.json({ 
           message: ERROR_RESPONSES.apiFailure
